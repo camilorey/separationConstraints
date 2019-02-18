@@ -1,0 +1,89 @@
+\documentclass[10pt,twocolumn,letterpaper]{article}
+
+\usepackage{cvpr}
+\usepackage{times}
+\usepackage{epsfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{booktabs}
+\usepackage{array}
+\usepackage{subfig}
+
+% Include other packages here, before hyperref.
+
+% If you comment hyperref and then uncomment it, you should delete
+% egpaper.aux before re-running latex.  (Or just hit 'q' on the first latex
+% run, let it finish, and you should be clear).
+\usepackage[pagebackref=true,breaklinks=true,letterpaper=true,colorlinks,bookmarks=false]{hyperref}
+
+% \cvprfinalcopy % *** Uncomment this line for the final submission
+
+\def\cvprPaperID{6485} % *** Enter the CVPR Paper ID here
+\def\httilde{\mbox{\tt\raisebox{-.5ex}{\symbol{126}}}}
+
+% Pages are numbered in submission mode, and unnumbered in camera-ready
+\ifcvprfinal\pagestyle{empty}\fi
+
+%commands and things
+\renewcommand{\vec}[1]{\mathbf{#1}}
+\newcommand{\Real}[1]{\mathbb{R}^{#1}}
+\newcommand{\ReLU}{\texttt{ReLU}\,}
+\newcommand{\ReLUBN}{\texttt{ReLU + BN}\,}
+\newcommand{\moons}{\texttt{MOONS}\,}
+\newcommand{\cifar}{\texttt{CIFAR-10}\,}
+\newcommand{\SepConstraint}{\texttt{Sep-Cons}\,}
+\newcommand{\SepUnit}{\texttt{Sep-U}\,}
+\newcommand{\SepLayer}{\texttt{Sep-L}\,}
+\newcommand{\SepPoint}{\texttt{Sep-P}\,}
+\newcommand{\SepLayerBN}{\texttt{Sep-L-BN}\,}
+\newcommand{\SepPointUnit}{\texttt{Sep-P+U}\,}
+\newcommand{\layer}{\ell}
+\DeclareMathOperator*{\argmin}{arg\,min}
+
+%%% theorem styles and stuff
+\newtheorem{theorem}{Theorem}[section]
+\newtheorem{corollary}{Corollary}[theorem]
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{remark}[theorem]{Remark}
+\newtheorem{definition}{Definition}[section]
+
+
+\title{Increasing separation in units for greater perforamnce an zero initialization}
+
+\author{Riera-Molina C.\\
+Universitat de Barcelona\\
+Gran Via de les Corts Catalanes 585, Barcelona Spain, 08005\\
+{\tt\small blauigris@gmail.com}
+% For a paper whose authors are all at the same institution,
+% omit the following lines up until the closing ``}''.
+% Additional authors and addresses can be added with ``\and'',
+% just like the second author.
+% To save space, use either the email address or home page, not both
+\and
+Rey-Torres C.\\
+Universitat de Barcelona\\
+Gran Via de les Corts Catalanes 585, Barcelona Spain, 08005\\
+{\tt\small camilorey@gmail.com}
+}
+\begin{document}
+\maketitle
+\begin{abstract}
+In Deep Learning, thin neural networks networks are especially prone to issues like dying neurons, overfitting, vanishing and exploding gradients. When using \ReLU architectures a series of linear separability  constraints  can  be  introduced  in order to (1)  allow  us  to  initialize  the  weights  to  zero, (2) control the aforementioned issues to a degree comparable to Batch Normalization; and (3)  enhance our geometric insight and construct interpretations of the dynamic behavior of DNN using elementary linear algebra.
+\end{abstract}
+
+\input{introduction.tex}
+\input{separability.tex}
+\input{experiments.tex}
+\input{conclusions.tex}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% BIBLIOGRAPHY %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+{\small
+\bibliographystyle{ieee}
+\bibliography{references}
+\nocite{*}
+}
+
+\end{document}
+

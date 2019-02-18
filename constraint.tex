@@ -1,0 +1,61 @@
+
+\section{Separating constraint}
+
+Our objective is to enforce separability on the units by to having part of the activations positive whereas the rest zero. We can cast this as a Constrained Optimization Problem as in \ref{eq:constraintOptimizationProblem}. 
+
+\begin{equation}\label{eq:constraintOptimizationProblem}
+\begin{aligned}
+&\underset{\theta}{\text{minimize}} &  L(D) \\
+& \text{subject to}\\
+&  supp(u_i(X;\vec{w},b)) \subset X, \; i = 1, \ldots, m.\\
+&  Z(u_i(X;\vec{w},b))\subset X, \; i = 1, \ldots, m.
+\end{aligned}
+\end{equation}
+
+However, this formulation is not differentiable, so we cast it as a Convex Optimization Problem\cite{boyd} by using linear constraints (hinge loss) in order to contain the magnitude of the gradients and enforce sparsity\cite{linearGradientMagnitude}\cite{l1sparsity}, see \ref{eq:ConvexConstraintOptimizationProblem}. We require at least one pre-activation to be less than -1 and another to be greater than 1. With this we comply with the constraint of having part of the activations positive and zero, whereas as we only request a single activation for each of the signs we are meddling as minimum as possible with the unit functioning. Since the problem is likely to be unfeasible, we introduce slack variables in other to get the most optimal solution, following SVM spirit. This introduces a trade-off between the loss of the task and the fulfillement of the constraints in the objective function, controlled by a parameter $\lambda$. As we proved in the previous section, both losses should not be competing one against the other, but since we are starting from an unfeasible configuration, some kind of priority should be given to each loss, or otherwise we could end in some main loss local minima. Note that if we set all the parameters to zero, the constraint will still be violated and its gradient will pull their values from zero. However, in order to this trick to work, we need to balance both positive and negative losses so they do not cancel themselves by another trade-off parameter that we unimaginatively call \emph{balance} $\rho$. We name this formulation as \SepUnit.
+
+\begin{equation}\label{eq:separatingUnit}
+\begin{aligned}
+&\underset{\theta}{\text{minimize}}   L(D) + \lambda\sum^m_{i=1} \rho \xi^+_i+(1-\rho) \cdot \xi^-_i\\
+& \text{subject to}\\
+&  max(pre(u_i(X;\vec{w},b))) \geq 1 - \xi^+_i, \; i = 1, \ldots, m.\\
+&  min(pre(u_i(X;\vec{w},b)))\leq -1 + \xi^-_i, \; i = 1, \ldots, m.
+\end{aligned}
+\end{equation}
+
+This problem can be solved through traditional gradient-based optimization methods. Since we (normally) cannot fit the entire dataset into the GPU, we use the batch in place of $X$.
+
+
+\subsection{Constraint variations}
+
+Whereas we place a constraint in each unit, other variations on this have caught our interest differing mainly on the \emph{scope} of the constraints. We use \SepConstraint to refer to all the variations.
+
+\subsubsection{Layer constraint}
+
+Following \cite{resnet}, \cite{densenet} and \cite{simpnet} we acknowledge the importance of redundant units. They argue that since accuracy of the network improves with the depth until it stats dropping. Thus, it is important to introduce a mechanism to forward the output intermediate layers to the top of the network. Therefore, it could be harmful if we force all the units to be separating units, since they would be needlessly transforming the data representation after the problem is solved.
+
+\begin{equation}\label{eq:separatingLayer}
+\begin{aligned}
+&\underset{\theta}{\text{minimize}}   L(D) + \lambda\sum^m_{i=1} \rho \xi^+_i+(1-\rho) \cdot \xi^-_i\\
+& \text{subject to}\\
+&  max(pre(l_i(X;\vec{w},b))) \geq 1 - \xi^+_i, \; i = 1, \ldots, D.\\
+&  min(pre(l_i(X;\vec{w},b)))\leq -1 + \xi^-_i, \; i = 1, \ldots, D.
+\end{aligned}
+\end{equation}
+
+In order to solve this issue, we introduce a relaxation of the original constraint \ref{eq:separatingUnit} which work in a batch-wise fashion, so for each pre-activation of the entire layer, we force to have at least one greater than 1 and one smaller than -1, following the same spirit than the original constraint but changing its scope to the entire layer. With this we allow the presence of redundant units which will forward the output of the layer, but we still require some of them to be separating. We name this formulation as \SepLayer
+
+\subsection{Point constraint}
+
+Notice that although our formulation is based on using the entire dataset, since this is not practical we use the batch as approximation. However, this may introduce inconsistencies if the batch size is to low, since it may happen that the points which make the units comply with the constraint fall outside the batch, and having the unit mistakenly considered as offender. Therefore we wish to find a way to cast a similar constraint whereas not to depend on the batch size. We attempt to do so by using a constraint whose scope is on each of the points. In this case, we force that for each of the points at least one pre-activation of the units of the layer is greater than 1 and another is smaller than -1, following the original constraint spirit. This has the benefit that since the constraint is build per point, we no longer depend on the size of the batch, see \ref{eq:separatingPoint}. 
+
+\begin{equation}\label{eq:separatingPoint}
+\begin{aligned}
+&\underset{\theta}{\text{minimize}}   L(D) + \lambda\sum^m_{i=1} \rho \xi^+_i+(1-\rho) \cdot \xi^-_i\\
+& \text{subject to}\\
+&  max(pre(l_i(x_i;\vec{w},b))) \geq 1 - \xi^+_i, \; i = 1, \ldots, X.\\
+&  min(pre(l_i(x_i;\vec{w},b)))\leq -1 + \xi^-_i, \; i = 1, \ldots, X.
+\end{aligned}
+\end{equation}
+
+Forcing each of the data points to have at least one activation is something that seems quite sensible to do, if no unit is activated the point is turned to zero. Forcing that at least one unit is not activated might be interesting from the point of view of sparsity, but it is less clear. In our work we use both since we interpret it as a dual of the previous constraint. We name this formulation as \SepPoint for consistence with previous naming.

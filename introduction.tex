@@ -1,0 +1,13 @@
+\section{Introduction}
+
+% The importance of separability in Deep Networks
+
+The success of Deep Learning has traditionally been linked to its ability to learn \emph{abstract representations} of data via function composition\cite{LeCun06atutorial}. Those functions (the \emph{units}) decompose the problem in \emph{parts} using hyperplanes followed by a non-linearlity, following a divide-and-conquer strategy. Each of the units are in charge of representing an aspect of the data, which turns increasingly abstract as data traverses the network. 
+\\\\
+We argue that analyzing the role of the separation performed by those hyperplanes is important to understand the inner mechanics of the network. Additionaly, we show that controlling the \emph{separability} of the network enables to solve problems such as training deep thin networks\emph{thinNetworks}, zero initialization \cite{FixUP} or dying units\cite{LeakyReLU}.
+\\\\ 
+
+
+
+In this work we attempt to explore role of the separability in regards with the linear piece-wise nature of each of the functions composing the network, this is the \emph{units}, and propose a novel approach based on Convex Constrained Optimization which aims to solve some of the aforementioned problems.
+

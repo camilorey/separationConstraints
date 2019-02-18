@@ -1,0 +1,44 @@
+\section{Neural network and unit separability}
+
+A traditional so-called \emph{neural network} is composed of \emph{layers} whose input is the output of the previous \emph{layer}, which are composed of a set of arbitrary functions called \emph{units} combined with canonical vectors (resulting in concatenating their outputs). The units are commonly composed of an affine transform, parametrized by a vector of weights $\vec{w}$ and an scalar bias $b$, followed by an activation function. In the case of the \ReLU this activation function is the trucation to zero of the negative hemispace of the hyperplane defined by $(\vec{w},b)$. 
+
+Let us define a dataset $D = {(\vec{x}_i, \vec{y}_i), (\vec{x}_{i-1}, \vec{y}_{i-1}), \dots, (\vec{x}_0, \vec{y}_0)}$ composed of pairs of data points $X = {\vec{x_i}, \dots, \vec{x_0}}$ and their targets $Y = {\vec{y_i}, \dots, \vec{y_0}}$ encoding the task to be solved. This enables us to define two different sets on the data according to their activation. We define the \emph{support} of a \ReLU-unit on a dataset $supp(u(\cdot;\vec{w},b))$ as the set of points of the \emph{dataset} for which the activation is positive, and the \emph{zero set} as the set of points for which the activation of $u$ is zero. Note that both support and zero are in the set-theoretic sense \emph{halfspaces} of $\Real{n}$, and their separation is the plane with normal vector $\vec{w}$ \emph{translated} by the bias $b$  \cite{florenzano2001ConvexAnalysis}\cite{convexOptimizationBoyd}:
+\begin{equation}\label{eq:supportAndZerosOfUnit}
+\begin{array}{lcl}
+ supp(u(\cdot;\vec{w},b))=\Pi^{+}(\vec{w},b) = \{\vec{x}|\vec{w}\cdot\vec{x}+b>0:\vec{x}\}\\
+    Z(u(\cdot;\vec{w},b))=\Pi^{-}(\vec{w},b) = \{\vec{x}|\vec{w}\cdot\vec{x}+b\leq 0:\vec{x}\}\\
+\end{array}
+\end{equation}
+
+\ReLU-units can be linearly combined with canonical vectors of $\Real{M}$ to construct \ReLU \emph{layer} functions $\layer:\Real{N}\rightarrow\Real{M}$ where $N$ is the layer \emph{dimension} and the number $M$ is the \emph{width} of the layer.
+
+Therefore, a DNN (a neural network) is a function $F:\Real{N_0}\rightarrow\mathbb{R}$ defined by a finite collection of layer functions which map the data points to the targets through function composition, by mapping a into a series of \emph{intermediate representations} \ref{eq:network}. \cite{ramachandranEtAl2017SearchingForActivationFunctions,eswaranSingh2015SomeTheoremsForFFNN}.
+
+\begin{equation}\label{eq:network}
+F(x) = \l_n \cdot \l_{n-1} \dots \l_0(x) 
+\end{equation}
+
+\section{Unit separability}
+
+In this section we analyse the different scenarios in which the units may operate in order to understand its relation with a number of the issues suffered by neural networks.
+
+If all the activations of $X$ are positive, see \ref{eq:redundantUnit}, then the convex hull must be strictly included into the positive half-space defined by the hyper-plane spanned from the unit parameters $(\vec(w), b)$. This downgrades the unit to a simple affine transform which will result in a redundant unit, since it represented by the following units by applying the same affine transform to their parameters.
+
+\begin{equation}\label{eq:redundantUnit}
+    supp(u(X;\vec{w},b))= X
+    Z(u(X;\vec{w},b))= \emptyset
+\end{equation}
+
+If all the activations of $X$ are zero, see \ref{eq:deadUnit}, then the convex hull must be strictly included into the negative half-space defined by the hyper-plane. This is a thoroughly researched problem known as \emph{dying units} and trivially destroys the representative ability of the network.
+
+\begin{equation}\label{eq:deadUnit}
+    supp(u(X;\vec{w},b))= \emptyset
+    Z(u(X;\vec{w},b))= X
+\end{equation}
+
+Finally, if some of the activations of $X$ are zero whereas some are not, see \ref{eq:separatingUnit}, then the hyperplane spanned by the unit parameters $(\vec(w), b)$ must cut through the convex hull of $X$. We call this unit a separating unit, since it is separating two parts of the dataset, unlike the other scenarios discussed earlier. Provided that the other two possibilities are clearly undesirable, we wish to enforce all the units to be separating units. We propose a method to do so in the next section.
+
+\begin{equation}\label{eq:separatingUnit}
+    supp(u(X;\vec{w},b)) \subset X
+    Z(u(X;\vec{w},b))\subset X
+\end{equation}
