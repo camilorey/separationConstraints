@@ -9,6 +9,12 @@
 \usepackage{booktabs}
 \usepackage{array}
 \usepackage{subfig}
+\usepackage{optidef}
+\usepackage{xcolor}
+
+\usepackage{alphalph}
+\renewcommand\thesubfigure{\alphalph{\value{subfigure}}}
+
 
 % Include other packages here, before hyperref.
 
@@ -39,7 +45,9 @@
 \newcommand{\SepLayerBN}{\texttt{Sep-L-BN}\,}
 \newcommand{\SepPointUnit}{\texttt{Sep-P+U}\,}
 \newcommand{\layer}{\ell}
+\newcommand\fuck[1]{\textcolor{red}{#1}}
 \DeclareMathOperator*{\argmin}{arg\,min}
+
 
 %%% theorem styles and stuff
 \newtheorem{theorem}{Theorem}[section]
@@ -68,12 +76,10 @@ Gran Via de les Corts Catalanes 585, Barcelona Spain, 08005\\
 }
 \begin{document}
 \maketitle
-\begin{abstract}
-In Deep Learning, thin neural networks networks are especially prone to issues like dying neurons, overfitting, vanishing and exploding gradients. When using \ReLU architectures a series of linear separability  constraints  can  be  introduced  in order to (1)  allow  us  to  initialize  the  weights  to  zero, (2) control the aforementioned issues to a degree comparable to Batch Normalization; and (3)  enhance our geometric insight and construct interpretations of the dynamic behavior of DNN using elementary linear algebra.
-\end{abstract}
 
 \input{introduction.tex}
 \input{separability.tex}
+\input{constraint.tex}
 \input{experiments.tex}
 \input{conclusions.tex}
 

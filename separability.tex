@@ -1,44 +1,83 @@
-\section{Neural network and unit separability}
+\section{Neural networks and unit separability}
 
-A traditional so-called \emph{neural network} is composed of \emph{layers} whose input is the output of the previous \emph{layer}, which are composed of a set of arbitrary functions called \emph{units} combined with canonical vectors (resulting in concatenating their outputs). The units are commonly composed of an affine transform, parametrized by a vector of weights $\vec{w}$ and an scalar bias $b$, followed by an activation function. In the case of the \ReLU this activation function is the trucation to zero of the negative hemispace of the hyperplane defined by $(\vec{w},b)$. 
+A traditional so-called \emph{neural network} is composed of \emph{layers} whose input is the output of the previous \emph{layer} \ref{eq:layer}, which are composed of a set of arbitrary real-valued functions in $\mathbb{R}$ called \emph{units}\ref{eq:unit}. The units are commonly composed of an affine transform, parameterized by a vector of weights $\vec{w}$ and an scalar bias $b$, followed by a non-linear \emph{activation function} $\sigma : \mathbb{R}\rightarrow\mathbb{R}$. In the case of the \ReLU this activation function is consist in the truncation to zero of negative values.
 
-Let us define a dataset $D = {(\vec{x}_i, \vec{y}_i), (\vec{x}_{i-1}, \vec{y}_{i-1}), \dots, (\vec{x}_0, \vec{y}_0)}$ composed of pairs of data points $X = {\vec{x_i}, \dots, \vec{x_0}}$ and their targets $Y = {\vec{y_i}, \dots, \vec{y_0}}$ encoding the task to be solved. This enables us to define two different sets on the data according to their activation. We define the \emph{support} of a \ReLU-unit on a dataset $supp(u(\cdot;\vec{w},b))$ as the set of points of the \emph{dataset} for which the activation is positive, and the \emph{zero set} as the set of points for which the activation of $u$ is zero. Note that both support and zero are in the set-theoretic sense \emph{halfspaces} of $\Real{n}$, and their separation is the plane with normal vector $\vec{w}$ \emph{translated} by the bias $b$  \cite{florenzano2001ConvexAnalysis}\cite{convexOptimizationBoyd}:
-\begin{equation}\label{eq:supportAndZerosOfUnit}
-\begin{array}{lcl}
- supp(u(\cdot;\vec{w},b))=\Pi^{+}(\vec{w},b) = \{\vec{x}|\vec{w}\cdot\vec{x}+b>0:\vec{x}\}\\
-    Z(u(\cdot;\vec{w},b))=\Pi^{-}(\vec{w},b) = \{\vec{x}|\vec{w}\cdot\vec{x}+b\leq 0:\vec{x}\}\\
-\end{array}
+\begin{equation}\label{eq:unit}
+u(x; \vec{w}, b) = \sigma(\vec{w} \cdot \vec{x} + b)
 \end{equation}
+Given a collection $\vec{w}_1\ldots,\vec{w}_m\in\Real{m}$ of weight vectors and $b_1,\ldots,b_m\in\mathbb{R}$ a collection of bias, we simplify the notation via
+\begin{equation}
+    u_j(\vec{x}) = u(\vec{x};\vec{w}_j,b_j)
+\end{equation}
+for $j=1,\ldots,m$. Units can be linearly combined with canonical vectors of $\Real{M}$ to construct \emph{layer} functions $\layer:\Real{N}\rightarrow\Real{M}$ where $N$ is the layer \emph{dimension} and the number $M$ is the \emph{width} of the layer.
 
-\ReLU-units can be linearly combined with canonical vectors of $\Real{M}$ to construct \ReLU \emph{layer} functions $\layer:\Real{N}\rightarrow\Real{M}$ where $N$ is the layer \emph{dimension} and the number $M$ is the \emph{width} of the layer.
-
-Therefore, a DNN (a neural network) is a function $F:\Real{N_0}\rightarrow\mathbb{R}$ defined by a finite collection of layer functions which map the data points to the targets through function composition, by mapping a into a series of \emph{intermediate representations} \ref{eq:network}. \cite{ramachandranEtAl2017SearchingForActivationFunctions,eswaranSingh2015SomeTheoremsForFFNN}.
+\begin{equation}\label{eq:layer}
+\layer(\vec{x}) = \sum^M_{i=1} u_i(\vec{x}) \hat{\textbf{e}}_i
+\end{equation}
+on more plain terms, $\layer(\vec{x})$ is an $m$-tuple (a \emph{concatenation}) of the outputs of units $u_1,u_2,\ldots,u_m$.
+\\\\
+A DNN (a neural network) is a function $F:\Real{N_0}\rightarrow\mathbb{R}$ defined by a finite collection of size $L$ of layer functions which map the data points to the targets through function composition, by mapping a into a series of \emph{intermediate representations} \ref{eq:network}. \cite{ramachandranEtAl2017SearchingForActivationFunctions,eswaranSingh2015SomeTheoremsForFFNN}.
 
 \begin{equation}\label{eq:network}
-F(x) = \l_n \cdot \l_{n-1} \dots \l_0(x) 
+F(x) = \layer_D \cdot \layer_{D-1} \dots \layer_1(x) 
 \end{equation}
 
-\section{Unit separability}
+Now we want to relate the network to the data provided for solving the task. That is, \emph{formally define} the \emph{dataset}. 
+\\\\
+Given a collection $X=\{\vec{x}_1,\vec{x}_2,\cdots,\vec{x}_N\} \subset \Real{N}$ of points and their corresponding target values $Y=\{\vec{y}_1,\vec{y}_2,\cdots,\vec{y}_N,\} \subset \Real{M}$, we define a dataset as a pairing \ref{eq:dataset}.
 
-In this section we analyse the different scenarios in which the units may operate in order to understand its relation with a number of the issues suffered by neural networks.
-
-If all the activations of $X$ are positive, see \ref{eq:redundantUnit}, then the convex hull must be strictly included into the positive half-space defined by the hyper-plane spanned from the unit parameters $(\vec(w), b)$. This downgrades the unit to a simple affine transform which will result in a redundant unit, since it represented by the following units by applying the same affine transform to their parameters.
-
-\begin{equation}\label{eq:redundantUnit}
-    supp(u(X;\vec{w},b))= X
-    Z(u(X;\vec{w},b))= \emptyset
+\begin{equation}\label{eq:dataset}
+    \mathcal{T} = \{(\vec{x_p}, \vec{y_p}) | p=1,\cdots,K\}
 \end{equation}
 
-If all the activations of $X$ are zero, see \ref{eq:deadUnit}, then the convex hull must be strictly included into the negative half-space defined by the hyper-plane. This is a thoroughly researched problem known as \emph{dying units} and trivially destroys the representative ability of the network.
-
-\begin{equation}\label{eq:deadUnit}
-    supp(u(X;\vec{w},b))= \emptyset
-    Z(u(X;\vec{w},b))= X
+Equation \ref{eq:unit} enables us to define two different sets on the data with regards to their pre-activation.  
+\\\\
+We define the \emph{upper} part of an unit  $u = u(\cdot;\vec{w},b)$ as the set of points of the \emph{dataset} for which the pre-activation is positive:
+\begin{equation}\label{eq:upperPartOfUnit}
+    upper(u) = \{\vec{x}|\vec{w}\cdot\vec{x}+b>0\}
 \end{equation}
+and the \emph{lower} part of $u_j$ as the set of points for which the pre-activation of $u_j$ turns up a negative value. That is, 
+\begin{equation}
+    lower(u) = \{\vec{x}|\vec{w}\cdot\vec{x}+b\leq 0\}
+\end{equation}
+Note that both upper and lower parts are --in the sense of linear algebra-- \emph{affine spaces} of $\Real{n}$\cite{Burges1998TutorialOnSVMForPatternRecognition,florenzano2001ConvexAnalysis}. 
+\\\\
+In addition, Their boundary is defined by the hyperplane with normal vector $\vec{w}$ \emph{translated} by the bias $b$ \cite{convexOptimizationBoyd,florenzano2001ConvexAnalysis,Burges1998TutorialOnSVMForPatternRecognition}.
 
-Finally, if some of the activations of $X$ are zero whereas some are not, see \ref{eq:separatingUnit}, then the hyperplane spanned by the unit parameters $(\vec(w), b)$ must cut through the convex hull of $X$. We call this unit a separating unit, since it is separating two parts of the dataset, unlike the other scenarios discussed earlier. Provided that the other two possibilities are clearly undesirable, we wish to enforce all the units to be separating units. We propose a method to do so in the next section.
+\subsection{\ReLU separability}
 
-\begin{equation}\label{eq:separatingUnit}
-    supp(u(X;\vec{w},b)) \subset X
-    Z(u(X;\vec{w},b))\subset X
+Though \emph{separability} is an intrinsic property of real-valued functions (see for example the \emph{separation theorems} of convex analysis in \cite{florenzano2001ConvexAnalysis}  or \cite{Burges1998TutorialOnSVMForPatternRecognition}), we are interested in studying separability with regards to specific data sets $\mathcal{T}$. 
+\\\\
+In order to do so, we isolate all the first components of points in $\mathcal{T}$ in a set $X$. That is, 
+\begin{equation}
+    X = \{\vec{x}_i|i=1,\ldots,P\}
+\end{equation}
+for all the pairs in $\mathcal{T}$ (in the sense of equation \ref{eq:dataset}). 
+\\\\
+Thus, we can define \emph{unit separability} for a given dataset $\mathcal{T}$ via $X$. More specifically, we say that a unit $u:\Real{n}\rightarrow\mathbb{R}$ is \emph{dead} with regards to set $X$ if
+\begin{equation}\label{eq:deadNeuronVersion1}
+ upper(u)\cap X = \emptyset \
+\end{equation}
+this means that unit $u_j$ is not activates by any point in the data set. On symmetry  we say that $u$ is \emph{redundant} if it is activated by \emph{every} point in $X$. That is, 
+\begin{equation}\label{eq:redundantNeuron}
+ upper(u)\cap X = X
+\end{equation}
+notice that this characterization is also valid using the lower part of $u$. Namely, $u$ is dead with regards to set $X$ if
+\begin{equation}\label{eq:deadNeuronVersion2}
+    lower(u)\cap X = X
+\end{equation}
+and $u$ is also redundant in terms of the lower part of $u$ if 
+\begin{equation}
+    lower(u)\cap X = \emptyset
+\end{equation}
+While a redundant unit \emph{downgrades} the unit to an affine transform, \emph{dead} units compromise the \emph{representative} ability of the network.
+\\\\
+While dead neurons have been traditionally accepted as a minor issue for DNN related pheoneman, we argue as well that redundant units are also not devoid of caveats.
+\\\\
+Thus, we wish to construct DNN in which the units \emph{separate} through set $X$ in the sense that they are neither \emph{dead}, nor \emph{redundant}. In terms of the sets defined so far, we can do this in two (equivalent) ways:
+\begin{equation}\label{eq:separabilityDefinition}
+\begin{array}{c}
+    \emptyset \neq upper(u)\cap X \neq X\\
+    \emptyset \neq lower(u)\cap X \neq X\\
+\end{array}
 \end{equation}

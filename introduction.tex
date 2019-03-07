@@ -1,13 +1,19 @@
+\begin{abstract}
+In Deep Learning, thin neural networks networks are especially prone to issues like dying neurons, overfitting, vanishing and exploding gradients. When using \ReLU architectures a series of linear separability  constraints  can  be  introduced  in order to (1)  allow  us  to  initialize  the  weights  to  zero, (2) control the aforementioned issues to a degree comparable to Batch Normalization; and (3)  enhance our geometric insight and construct interpretations of the dynamic behavior of DNN using elementary linear algebra.
+\end{abstract}
+
 \section{Introduction}
 
 % The importance of separability in Deep Networks
 
-The success of Deep Learning has traditionally been linked to its ability to learn \emph{abstract representations} of data via function composition\cite{LeCun06atutorial}. Those functions (the \emph{units}) decompose the problem in \emph{parts} using hyperplanes followed by a non-linearlity, following a divide-and-conquer strategy. Each of the units are in charge of representing an aspect of the data, which turns increasingly abstract as data traverses the network. 
+The success of Deep Learning has traditionally been linked to its ability to learn \emph{abstract representations} of data via function composition\cite{LeCun06atutorial}. Those functions (the \emph{units}) decompose the problem in \emph{parts} by using a set of \emph{hyperplanes} followed by a \emph{non-linearlity} each, implementing a divide-and-conquer strategy. Each of the units are in charge of representing an aspect of the data, which turns increasingly abstract as data traverses the network. However, the topic of how this problem decomposition is performed has received rather little attention to our knowledge.
 \\\\
-We argue that analyzing the role of the separation performed by those hyperplanes is important to understand the inner mechanics of the network. Additionaly, we show that controlling the \emph{separability} of the network enables to solve problems such as training deep thin networks\emph{thinNetworks}, zero initialization \cite{FixUP} or dying units\cite{LeakyReLU}.
+ADD LEAKY RELU AND SIMILAR
+\\\\
+In the other hand, we have the topic on unit initialization. Since the the output of a layer is the input of the next this makes to use zero initialization imposssible with more than two layers, since as the gradient of the weights is a multiple of the input \cite{backprop}. Nevertheless it has been traditionally used in machine learning, especially in incremental models, see \cite{onlinesvm}\cite{adaboost}. In deep learning, the only solution so far has been to use random init \cite{xavier}\cite{he}\cite{meanfieldinit}. Nevertheless, this approach is suboptimal, since which one of the methods is the best is poorly understood so the community chooses one or other based on rules of thumb or intuition. We think that enabling zero initialization would remove this discussion and the bias induced by the distributions used in the initializaitons, and enable a more natural approach based on the real distribution of the data, in an spirit similar to \cite{magicinit}. So far, the most promising attempt at zero initialization has been \cite{fixup}, which in turn builds on the trick used in \cite{fastimangenet} of setting $\gamma$ (the multiplier) of Batch Normalization layers output layers of each block to zero so it shotcuts the entire network. They find that by using this they can remove Batch Normalization complemetely, which it has beeen demonstrated that it suffers from many problems \cite{badbatchnorm1} \cite{badbatchnorm2} \cite{groupnorm}. In our work we try to do the same by focusing on \emph{thin} neural networks, an scenario in which Batch Normalization struggles to work so we can build to more production-like scenarios in the future. Another approch worthy to name are skip connection based models \cite{resnet}\cite{densenet}. They simply forward the activations to the top so they can retrieve gradient and avoid the optimal depth problem described in \cite{resnet}\cite{resnetensemble}.\\\\
+
+We argue that analyzing the role of the separation performed by those hyperplanes is important to understand the inner mechanics of the network. Additionaly, we show that controlling the \emph{separability} of the network enables to alleviate problems such as training deep thin networks\emph{thinNetworks}, zero initialization \cite{FixUP} or dying units\cite{LeakyReLU}.
 \\\\ 
-
-
 
 In this work we attempt to explore role of the separability in regards with the linear piece-wise nature of each of the functions composing the network, this is the \emph{units}, and propose a novel approach based on Convex Constrained Optimization which aims to solve some of the aforementioned problems.
 
