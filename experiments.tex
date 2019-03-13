@@ -36,117 +36,349 @@ Due to the fact that \cifar is a much larger dataset, choosing hyper-parameters 
 \\\\
 In matters of \emph{initialization} two schemes were tested: the \emph{Glorot Uniform Scheme} implemented in \texttt{Keras} following (see \cite{Glorot10Initialization} for the technical details) and \emph{zero initialization} consisting in setting weights and biases to zero. 
 
-\subsection{Visualization}
+\subsection{Visualization}\label{subsec:visualization}
 
-In order to understand the effect that separability has we use the \moons dataset in order to visualize its dynamics. We train a network composed of 50 layers
 
-\begin{figure*} 
-    \centering
-  \subfloat[\ReLU input \label{fig:reluInput}]{%
-       \includegraphics[width=0.20\linewidth]{img/toy/relu/0.pdf}}
-  \subfloat[\ReLU second layer \label{fig:relu2}]{%
-        \includegraphics[width=0.20\linewidth]{img/toy/relu/2.pdf}}
-  \subfloat[\ReLU 21th layer \label{fig:relu21}]{%
-        \includegraphics[width=0.20\linewidth]{img/toy/relu/21.pdf}}
-  \subfloat[\ReLU 46th layer \label{fig:relu46}]{%
-       \includegraphics[width=0.20\linewidth]{img/toy/relu/46.pdf}}
-  \subfloat[\ReLU output\label{fig:reluOutput}]{%
-       \includegraphics[width=0.20\linewidth]{img/toy/relu/output.pdf}}
-\\
-  \subfloat[\ReLUBN input \label{fig:reluBNInput}]{%
-       \includegraphics[width=0.20\linewidth]{img/toy/relu-bn/0.pdf}}
-  \subfloat[\ReLUBN 4th layer\label{fig:reluBN4}]{%
-        \includegraphics[width=0.20\linewidth]{img/toy/relu-bn/4.pdf}}
-   \subfloat[\ReLUBN 21th layer\label{fig:reluBN21}]{%
-        \includegraphics[width=0.20\linewidth]{img/toy/relu-bn/21.pdf}}
-  \subfloat[\ReLUBN 48th\label{fig:reluBN48}]{%
-       \includegraphics[width=0.20\linewidth]{img/toy/relu-bn/48.pdf}}
-  \subfloat[\ReLUBN output\label{fig:reluBNOutput}]{%
-       \includegraphics[width=0.20\linewidth]{img/toy/relu-bn/output.pdf}}
-\\
-  \subfloat[\SepLayer input\label{fig:layerwiseInput}]{%
-       \includegraphics[width=0.20\linewidth]{img/toy/layerwise/0.pdf}}
-  \subfloat[\SepLayer 4th layer \label{fig:layerwise4}]{%
-        \includegraphics[width=0.20\linewidth]{img/toy/layerwise/4.pdf}}
-  \subfloat[\SepLayer25 layer\label{fig:layerwise25}]{%
-       \includegraphics[width=0.20\linewidth]{img/toy/layerwise/25.pdf}}
-   \subfloat[\SepLayer 49th layer \label{fig:layerwise49}]{%
-       \includegraphics[width=0.20\linewidth]{img/toy/layerwise/49.pdf}}
-  \subfloat[\SepLayer\label{fig:layerwiseOutput}]{%
-       \includegraphics[width=0.20\linewidth]{img/toy/layerwise/output.pdf}}
-\\
-  \subfloat[\SepUnit input \label{fig:unitwiseInput}]{%
-       \includegraphics[width=0.20\linewidth]{img/toy/unitwise/0.pdf}}
-  \subfloat[\SepUnit 4th layer\label{fig:unitwise4}]{%
-        \includegraphics[width=0.20\linewidth]{img/toy/unitwise/4.pdf}}
-  \subfloat[\SepUnit 23th layer\label{fig:unitwise23}]{%
-       \includegraphics[width=0.20\linewidth]{img/toy/unitwise/23.pdf}}
-   \subfloat[\SepUnit 49th layer\label{fig:unitwise49}]{%
-       \includegraphics[width=0.20\linewidth]{img/toy/unitwise/49.pdf}}
-  \subfloat[\SepUnit output\label{fig:unitwiseOutput}]{%
-       \includegraphics[width=0.20\linewidth]{img/toy/unitwise/output.pdf}}
-\\
-  \subfloat[\SepPoint input \label{fig:pointwiseInput}]{%
-       \includegraphics[width=0.20\linewidth]{img/toy/pointwise/0.pdf}}
-  \subfloat[\SepPoint 4th layer\label{fig:pointwise4}]{%
-        \includegraphics[width=0.20\linewidth]{img/toy/pointwise/4.pdf}}
-  \subfloat[\SepPoint 24th layer\label{fig:pointwise24}]{%
-       \includegraphics[width=0.20\linewidth]{img/toy/pointwise/24.pdf}}
-   \subfloat[\SepPoint 49th layer\label{fig:pointwise49}]{%
-       \includegraphics[width=0.20\linewidth]{img/toy/pointwise/49.pdf}}
-  \subfloat[\SepPoint output\label{fig:pointwiseOutput}]{%
-       \includegraphics[width=0.20\linewidth]{img/toy/pointwise/output.pdf}}
-\\
-  \subfloat[\SepPointUnit input \label{fig:upwiseInput}]{%
-       \includegraphics[width=0.20\linewidth]{img/toy/unitpointwise/0.pdf}}
-  \subfloat[\SepPointUnit 4th layer\label{fig:upwise4}]{%
-        \includegraphics[width=0.20\linewidth]{img/toy/unitpointwise/4.pdf}}
-  \subfloat[\SepPointUnit 25th layer\label{fig:upwise25}]{%
-       \includegraphics[width=0.20\linewidth]{img/toy/unitpointwise/25.pdf}}
-   \subfloat[\SepPointUnit 48th layer\label{fig:upwise48}]{%
-       \includegraphics[width=0.20\linewidth]{img/toy/unitpointwise/48.pdf}}
-  \subfloat[\SepPointUnit output\label{fig:upwiseOutput}]{%
-       \includegraphics[width=0.20\linewidth]{img/toy/unitpointwise/output.pdf}}
-       
-  \caption{Visualization of a 50x4 network trained on the moons dataset with batch size equal to the entire training set. The first column shows the data space with the partitions performed by the first layer (a), (f), (k), (p), (u)). The blue lines show the separating plane whereas the gray zone accounts for the zero area of each of the 4 units. The three following columns show the projection of the dataset in the space of the two first units of a selected layer: bottom ((b), (g), (l), (q), (v), (aa)), middle ((c), (h), (m), (r), (w), (ab)), and top layers ((d), (i), (n), (s), (x), (ac)). Finally, the last column shows the output surface of the network in the original data space ((r), (j), (o), (t), (y), (ad)). Notice how the gradient has changed the separation performed by \ReLU in the input layer (a), but it fails to find a proper representation of use for the upper layers ((b), (c), (d)), so starting from the middle of the network it sends the entire dataset to zero. This leads to the total failure to output anything useful (j) which will make difficult to get any kind of \emph{meaningful} gradient in order to escape from this situation. We argue that this is due the fact that the lower layers (b) are breaking the \emph{topological structure} of the classes of the dataset, making the gradient of the respective layers so \emph{unrelated} with the original structure that fails in fixing the unsuitable partition generated by the random initialization. \ReLUBN fares a bit better since it is able to pull the data out of zero, as we can see in the upper layers ((h), (i)), yet it is still unable to preserve the \emph{topological structure} like \ReLU, resulting in \emph{data shattering} and \emph{mezcla topologica}. This generates very strange outputs which we can see in (j) whose gradients fail again to provide hints to the lower layers to fix the topological structure of the network. In the other hand, our relaxed version of our proposal \SepLayer is able to solve the problem (o). We find how is able to propagate the information needed for the lower layers to perform the separation, so we can see at (k) how the hyperplanes are much better placed, so by the bottom layers (l) the problem is already solved and the rest of layers simply forward upwards ((m), (n)). Note how as our formulation is relaxed from \SepUnit there are dead units (m), note the vertical axis showing how the horizontal unit is effectively dead. Also notice how the entire space is colored in gray, showing how at least one unit is effectively operating in linear mode. This indicates the role of the upper layers on forwarding the already found solution. The fourth row shows our restricted version \SepUnit, which forces all the units of the network to separate. Note how the non-linear performance of \ReLU is directly linked to its separation, forcing all the units to separate equals to forcing all the units to be non-linear. This harms the forwarding role shown in \SepLayer, resulting in that although the input layer (p) shows a sensible configuration, as the data goes upwards (r), either the constraint is violated (even sightly) or something goes the wrong way, but the network fails to output anything \emph{meaningful} (t). Notice how event the network fails, the respresentation found by the network still propagates all way to the input layer, hinting that it could be used as a pretraining step. The next row shows the dual of our constraint \SepPoint. We see how it effectively propagates the data \emph{topological structure} up to the output of the network ((v), (w), (x)), but as we are only requiring the extrema of the pre-activations of each layer to be either -1 or 1, there is no requirement to be perform a non-linear function, so the solution remains almost linear (y). Finally, if we try to balance the excessive non-linearily of \SepUnit with excessive linearity of \SepPoint we can combine them in \SepPointUnit, which performs adequately but its solution (ad) is a bit more complex than \SepLayer (o). Notice how each of the units is effectively separating the data ((aa), (ab), (ac)). The solution found at the first layer (z) is also a bit different. Nevertheless, it is able to overcome the issues presented by \SepUnit by forcing to separate points which were already separated, thus becoming redundant and effectively forwarding the previous solution found at the input. In overall, we find how the constraints enable to propagate a gradient which apparently is better to adjust the lower layers than their counterparts.}
-  \label{fig:toy} 
+In order to understand the effect that separability has we use the \moons dataset. We train 50x4 network on the moons dataset with batch size equal to the entire training set for each of our proposals plus \ReLU and \ReLUBN, which we show in Figures \ref{fig:moonsReLU},\ref{fig:moonsReLUBN},\ref{fig:moonsLayerwise},\ref{fig:moonsUnitwise},\ref{fig:moonsPointwise} and \ref{fig:moonsUnitpointwise}. The first column shows the data space with the partitions performed by the first layer in the native space. The blue lines show the separating plane whereas the gray zone accounts for the zero area of each of the 4 units. Next to it, we show the 4th, 25th and classification layers in pairs (one plot for pair of coordinates), to see how the data evolves as in goes through the network. Finally, the last column shows the output surface of the network in the original data space. 
+
+\begin{figure*}
+  \centering
+  \parbox{\textwidth}{
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{Input layer}{\includegraphics[width=\hsize]{img/toy/relu/conv2d_1-0.pdf}}
+    }
+    % \hskip1em
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{4th layer}{\includegraphics[width=\hsize]{img/toy/relu/conv2d_4-0.pdf}}
+    %   \vskip1em
+      \subcaptionbox{4th layer}{\includegraphics[width=\hsize]{img/toy/relu/conv2d_4-2.pdf}} 
+    }
+    % \hskip1em
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{25th layer}{\includegraphics[width=\hsize]{img/toy/relu/conv2d_25-0.pdf}}
+    %   \vskip1em
+      \subcaptionbox{25th layer}{\includegraphics[width=\hsize]{img/toy/relu/conv2d_25-2.pdf}} 
+    }
+    % \hskip1em
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{Classification layer}{\includegraphics[width=\hsize]{img/toy/relu/dense_1-0.pdf}}
+    %   \vskip1em
+      \subcaptionbox{Classification layer}{\includegraphics[width=\hsize]{img/toy/relu/dense_1-2.pdf}} 
+    }
+    % \hskip1em
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{Output}{\includegraphics[width=\hsize]{img/toy/relu/output.pdf}}
+    }
+  }
+  \caption{ReLU}
+    \label{fig:moonsReLU}
 \end{figure*}
 
 
-Init
+Notice how the gradient has changed the separation performed by \ReLU in Figure \ref{fig:moonsReLU} at the input layer (a), but it fails to find a proper representation of use for the upper layers ((b), (c), (d)), so starting from the middle of the network it sends the entire dataset to zero. This leads to the total failure to output anything useful (j) which will make difficult to get any kind of \emph{useful} gradient in order to escape from this situation. We argue that this is due the fact that the lower layers (b) are breaking the \emph{topological structure} of the classes of the dataset, making the gradient of the respective layers so \emph{unrelated} with the original structure which fails in fixing the unsuitable partition generated by the random initialization. We relate this phenomena with the lack of smoothness over the transition across layers causing lack of \emph{intuitive} separation, first described in \cite{HauserAsok}. If the transition between the layers is too harsh, mostly due sending too much points to zero due dead units or \emph{overlapping} dead units (one unit sends part of the data to zero whereas the units following them send the rest) the gradient resulting will be unable to traspass the truncations and reach the lower layers which are the ones which are messing it.
 
-\begin{figure*} 
-    \centering
-  \subfloat[\ReLU input \label{fig:reluInputInit}]{%
-       \includegraphics[width=0.20\linewidth]{img/init/relu/0.pdf}}
-  \subfloat[\ReLU feature layer \label{fig:reluInputFeatureInit}]{%
-        \includegraphics[width=0.20\linewidth]{img/init/relu/49.pdf}}
-  \subfloat[\ReLUBN input at epoch 40 \label{fig:relubnInputInit}]{%
-        \includegraphics[width=0.20\linewidth]{img/init/relu-bn/0.pdf}}
-  \subfloat[\ReLUBN feature layer at epoch 40 \label{fig:relubnFeatureInit}]{%
-       \includegraphics[width=0.20\linewidth]{img/init/relu-bn/48.pdf}}
-       \\
-  \subfloat[\SepLayer input at epoch 0 \label{fig:sepInitInput0}]{%
-       \includegraphics[width=0.20\linewidth]{img/init/layerwise/0/0.pdf}}
-  \subfloat[\SepLayer feature layer at epoch 0 \label{fig:sepInitFeature0}]{%
-        \includegraphics[width=0.20\linewidth]{img/init/layerwise/0/49.pdf}}
-  \subfloat[\SepLayer input at epoch 16 \label{fig:sepInitInput16}]{%
-       \includegraphics[width=0.20\linewidth]{img/init/layerwise/16/0.pdf}}
-  \subfloat[\SepLayer feature layer at epoch 16 \label{fig:sepInitInput16}]{%
-        \includegraphics[width=0.20\linewidth]{img/init/layerwise/16/49.pdf}}
-        \\
-  \subfloat[\SepLayer input at epoch 32\label{fig:sepInputInit32}]{%
-       \includegraphics[width=0.20\linewidth]{img/init/layerwise/32/0.pdf}}
-  \subfloat[\SepLayer feature layer at epoch 32\label{fig:sepInputInit32}]{%
-        \includegraphics[width=0.20\linewidth]{img/init/layerwise/32/49.pdf}}
-\subfloat[\SepLayer input at epoch 48\label{fig:sepInputInit48}]{%
-       \includegraphics[width=0.20\linewidth]{img/init/layerwise/48/0.pdf}}
-  \subfloat[\SepLayer feature layer at epoch 48 \label{fig:sepInputInit48}]{%
-        \includegraphics[width=0.20\linewidth]{img/init/layerwise/48/49.pdf}}
+\begin{figure*}
+  \centering
+  \parbox{\textwidth}{
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{Input layer}{\includegraphics[width=\hsize]{img/toy/relu-bn/conv2d_1-0.pdf}}
+    }
+    % \hskip1em
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{4th layer}{\includegraphics[width=\hsize]{img/toy/relu-bn/conv2d_4-0.pdf}}
+    %   \vskip1em
+      \subcaptionbox{4th layer}{\includegraphics[width=\hsize]{img/toy/relu-bn/conv2d_4-2.pdf}}
+    }
+    % \hskip1em
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{25th layer}{\includegraphics[width=\hsize]{img/toy/relu-bn/conv2d_25-0.pdf}}
+    %   \vskip1em
+      \subcaptionbox{25th layer}{\includegraphics[width=\hsize]{img/toy/relu-bn/conv2d_25-2.pdf}} 
+    }
+    % \hskip1em
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{}{\includegraphics[width=\hsize]{img/toy/relu-bn/dense_1-0.pdf}}
+    %   \vskip1em
+      \subcaptionbox{}{\includegraphics[width=\hsize]{img/toy/relu-bn/dense_1-2.pdf}} 
+    }
+    % \hskip1em
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{Output}{\includegraphics[width=\hsize]{img/toy/relu-bn/output.pdf}}
+    }
+  }
+  \caption{\ReLUBN}
+    \label{fig:moonsReLUBN}
+\end{figure*}
 
-  \caption{This figure shows the input and feature layers of network composed of 50 layers of 4 units each. The network is trained without loss, implying that for \ReLU it is left as it was initialized and in the case of \ReLUBN a number of epochs is run in order to ensure that the moments are adjusted. We train also \SepLayer for a number of epochs in order to understand what changes are undergoing in the network if we only optimize the separation constraint, without no additional loss. We find that the Glorot initialization used with \ReLU is quite poor with regards to the resulting representation in the feature layer, as we see in (b). As we see in \ref{fig:toy}, \ReLU tends to pack all the data to zero as the network grows in depth, disregarding the initialization. \ReLUBN is able to push some data from zero, see (d), but we argue that this is product of the biases of the network, other than a real connection with the data. This leads to the fact that the input layer remains the same than \ReLU's, see (c). If we look at \SepLayer (e-l), we see how at the beginning ((e), (f)) the starting point is indeed the same than \ReLU, but incrementally thanks to the separating constraint, it pushes the hyperplanes all the way back to the input (g) so it is able to have a much better representation at (j).} 
+\ReLUBN fares a bit better since it is able to pull the data out of zero, as we can see in the upper layers ((d), (e), (f), (g)), yet it is still unable to preserve the \emph{topological structure} like \ReLU, which ultimately leads to \emph{data shattering} \cite{dataShattering} and \emph{mezcla topologica}. This generates very strange outputs which we can see in (h) whose gradients fail again to provide hints to the lower layers to fix the topological structure of the network. 
+
+\begin{figure*}
+  \centering
+  \parbox{\textwidth}{
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{Input layer}{\includegraphics[width=\hsize]{img/toy/layerwise/conv2d_1-0.pdf}}
+    }
+    % \hskip1em
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{4th layer}{\includegraphics[width=\hsize]{img/toy/layerwise/conv2d_4-0.pdf}}
+    %   \vskip1em
+      \subcaptionbox{4th layer}{\includegraphics[width=\hsize]{img/toy/layerwise/conv2d_4-2.pdf}} 
+    }
+    % \hskip1em
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{25th layer}{\includegraphics[width=\hsize]{img/toy/layerwise/conv2d_25-0.pdf}}
+    %   \vskip1em
+      \subcaptionbox{25th layer}{\includegraphics[width=\hsize]{img/toy/layerwise/conv2d_25-2.pdf}} 
+    }
+    % \hskip1em
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{Classification layer}{\includegraphics[width=\hsize]{img/toy/layerwise/dense_1-0.pdf}}
+    %   \vskip1em
+      \subcaptionbox{Classification layer}{\includegraphics[width=\hsize]{img/toy/layerwise/dense_1-2.pdf}} 
+    }
+    % \hskip1em
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{Output}{\includegraphics[width=\hsize]{img/toy/layerwise/output.pdf}}
+    }
+  }
+    \caption{\SepLayer}
+    \label{fig:moonsLayerwise}
+\end{figure*}
+
+
+In the other hand, our relaxed version of our proposal \SepLayer, see Figure \ref{fig:moonsLayerwise}, is able to solve the problem (h). We find how is able to propagate the information needed for the lower layers to perform the separation, so we can see at (k) how the separating planes are much better placed, so by the bottom layers (c) the problem is already solved and the rest of layers simply forward upwards ((d), (e)). Note how as our formulation is relaxed from \SepUnit we allow are redundant and dead units. Nootice how the entire space is colored in different shades of gray, showing how at (d) least one unit is effectively operating in linear mode, thus showing how in certain situations like the mentioned before affine transforms might be useful \cite{resnet}, \cite{batchnormAffine}. This indicates the role of the upper layers on forwarding the already found solution. 
+
+\begin{figure*}
+  \centering
+     % Unitwise
+  \parbox{\textwidth}{
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{Input layer}{\includegraphics[width=\hsize]{img/toy/unitwise/conv2d_1-0.pdf}}
+    }
+    % \hskip1em
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{4th layer}{\includegraphics[width=\hsize]{img/toy/unitwise/conv2d_4-0.pdf}}
+    %   \vskip1em
+      \subcaptionbox{4th layer}{\includegraphics[width=\hsize]{img/toy/unitwise/conv2d_4-2.pdf}} 
+    }
+    % \hskip1em
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{25th layer}{\includegraphics[width=\hsize]{img/toy/unitwise/conv2d_25-0.pdf}}
+    %   \vskip1em
+      \subcaptionbox{25th layer}{\includegraphics[width=\hsize]{img/toy/unitwise/conv2d_25-2.pdf}} 
+    }
+    % \hskip1em
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{Classification layer}{\includegraphics[width=\hsize]{img/toy/unitwise/dense_1-0.pdf}}
+    %   \vskip1em
+      \subcaptionbox{Classification layer}{\includegraphics[width=\hsize]{img/toy/unitwise/dense_1-2.pdf}} 
+    }
+    % \hskip1em
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{Output}{\includegraphics[width=\hsize]{img/toy/unitwise/output.pdf}}
+    }
+  }
+  \caption{\SepUnit}
+    \label{fig:moonsUnitwise}
+\end{figure*}
+
+
+Figure \ref{fig:moonsUnitwise} shows our restricted version \SepUnit, which forces all the units of the network to separate but does not consider activation with regard to the points. Because this, solutions like activating all the units of the layer for a single point and sending the rest to zero are still valid. Therefore, we expect it to fail. Notice how even the network fails, the representation found by the network still propagates all way to the input layer and the output is not zero 
+
+\begin{figure*}
+  \centering
+  %Pointwise
+  \parbox{\textwidth}{
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{Input layer}{\includegraphics[width=\hsize]{img/toy/pointwise/conv2d_1-0.pdf}}
+    }
+    % \hskip1em
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{4th layer}{\includegraphics[width=\hsize]{img/toy/pointwise/conv2d_4-0.pdf}}
+    %   \vskip1em
+      \subcaptionbox{4th layer}{\includegraphics[width=\hsize]{img/toy/pointwise/conv2d_4-2.pdf}} 
+    }
+    % \hskip1em
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{25th layer}{\includegraphics[width=\hsize]{img/toy/pointwise/conv2d_25-0.pdf}}
+    %   \vskip1em
+      \subcaptionbox{25th layer}{\includegraphics[width=\hsize]{img/toy/pointwise/conv2d_25-2.pdf}} 
+    }
+    % \hskip1em
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{}{\includegraphics[width=\hsize]{img/toy/pointwise/dense_1-0.pdf}}
+    %   \vskip1em
+      \subcaptionbox{}{\includegraphics[width=\hsize]{img/toy/pointwise/dense_1-2.pdf}} 
+    }
+    % \hskip1em
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{Output}{\includegraphics[width=\hsize]{img/toy/pointwise/output.pdf}}
+    }
+  }
+  \caption{\SepPoint}
+    \label{fig:moonsPointwise}
+\end{figure*}
+
+The constraint \SepPoint is shown at Figure \ref{fig:moonsPointwise}. We see how it effectively propagates the data \emph{topological structure} up to the output of the network ((e), (d), (f), (g)), but as the only requirement that for each point at least one unit is activated and another not this can be fulfilled with an affine unit, so the solution remains almost linear (h). 
+
+\begin{figure*}
+  \centering
+   \parbox{\textwidth}{
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{Input layer}{\includegraphics[width=\hsize]{img/toy/unitpointwise/conv2d_1-0.pdf}}
+    }
+    % \hskip1em
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{4th layer}{\includegraphics[width=\hsize]{img/toy/unitpointwise/conv2d_4-0.pdf}}
+    %   \vskip1em
+      \subcaptionbox{4th layer}{\includegraphics[width=\hsize]{img/toy/unitpointwise/conv2d_4-2.pdf}} 
+    }
+    % \hskip1em
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{25th layer}{\includegraphics[width=\hsize]{img/toy/unitpointwise/conv2d_25-0.pdf}}
+    %   \vskip1em
+      \subcaptionbox{25th layer}{\includegraphics[width=\hsize]{img/toy/unitpointwise/conv2d_25-2.pdf}} 
+    }
+    % \hskip1em
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{Classification layer}{\includegraphics[width=\hsize]{img/toy/unitpointwise/dense_1-0.pdf}}
+    %   \vskip1em
+      \subcaptionbox{Classification layer}{\includegraphics[width=\hsize]{img/toy/unitpointwise/dense_1-2.pdf}} 
+    }
+    % \hskip1em
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{Output}{\includegraphics[width=\hsize]{img/toy/unitpointwise/output.pdf}}
+    }
+  }
+
+    \caption{\SepPointUnit}
+    \label{fig:moonsUnitpointwise}
+\end{figure*}
+
+Finally, if we combine \SepPoint with \SepPoint in \SepPointUnit, in order to avoid linearity as well as trivial solutions, we find how is effectively separating the data at Figure \ref{fig:moonsUnitpointwise} (h). The solution found is a bit different from \SepLayer at Figure \ref{fig:moonsLayerwise}(h), we due the increased non-linearity of \SepUnit, but thanks to \SepPoint avoids the problems present in Figure \ref{fig:moonsUnitwise}.
+
+\subsection{Separation space}
+
+One interesting question is to understand which effect has the separation constraint by itself, without loss functional. Therefore, we train the same 50x4 network and hyperparameters than the experiment from \ref{subsec:visualization}.
+
+\begin{figure*}
+  \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{img/init/relu/conv2d_1-0.pdf}
+        \caption{\ReLU input layer}
+        \label{fig:reluInitInput}
+    \end{subfigure}
+    ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+      %(or a blank line to force the subfigure onto a new line)
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{img/init/relu/conv2d_50-0.pdf}
+        \caption{\ReLU 50th layer}
+        \label{fig:reluInit501}
+    \end{subfigure}
+    ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+    %(or a blank line to force the subfigure onto a new line)
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{img/init/relu/conv2d_50-2.pdf}
+        \caption{\ReLU 50th layer}
+        \label{fig:reluIniti502}
+    \end{subfigure}
+    \\
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{img/init/relu-bn/conv2d_1-0.pdf}
+        \caption{\ReLUBN input layer}
+        \label{fig:reluBNInitInput}
+    \end{subfigure}
+    ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+      %(or a blank line to force the subfigure onto a new line)
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{img/init/relu-bn/conv2d_50-0.pdf}
+        \caption{\ReLUBN 50th layer}
+        \label{fig:reluBNInit501}
+    \end{subfigure}
+    ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+    %(or a blank line to force the subfigure onto a new line)
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{img/init/relu-bn/conv2d_50-2.pdf}
+        \caption{\ReLUBN 50th layer}
+        \label{fig:reluBNInit502}
+    \end{subfigure}
+    \\
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{img/init/layerwise/conv2d_1-0.pdf}
+        \caption{\SepLayer input layer}
+        \label{fig:layerwiseInitInput}
+    \end{subfigure}
+    ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+      %(or a blank line to force the subfigure onto a new line)
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{img/init/layerwise/conv2d_50-0.pdf}
+        \caption{\SepLayer 50th layer}
+        \label{fig:layerwiseInit501}
+    \end{subfigure}
+    ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+    %(or a blank line to force the subfigure onto a new line)
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{img/init/layerwise/conv2d_50-2.pdf}
+        \caption{\SepLayer 50th layer}
+        \label{fig:layerwiseInit502}
+    \end{subfigure}
+    \\
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{img/init/unitpointwise/conv2d_1-0.pdf}
+        \caption{\SepPointUnit Input}
+        \label{fig:unitpointInitInput}
+    \end{subfigure}
+    ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+      %(or a blank line to force the subfigure onto a new line)
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{img/init/unitpointwise/conv2d_50-0.pdf}
+        \caption{\SepPointUnit 50th layer}
+        \label{fig:unitpointInit501}
+    \end{subfigure}
+    ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+    %(or a blank line to force the subfigure onto a new line)
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{img/init/unitpointwise/conv2d_50-2.pdf}
+        \caption{\SepPointUnit 50th layer}
+        \label{fig:unitpointInit5012}
+    \end{subfigure}
+    
+  \caption{This figure shows the input and feature layers of network composed of 50 layers of 4 units each. The network is trained without loss, implying that for \ReLU it is left as it was initialized and in the case of \ReLUBN $10000$ epochs are run in order to ensure that the moments are adjusted. We train also \SepLayer until convergence in order to understand what changes are undergoing in the network if we only optimize the separation constraint, without additional loss. We find that the Glorot initialization used with \ReLU is quite poor with regards to the resulting representation in the feature layer, as we see in ((b), (c)). As we see in \ref{fig:moonsReLU}, \ReLU tends to pack all the data to zero as the network grows in depth, disregarding the initialization. \ReLUBN is able to push some data from zero, see (d), but still packs all the data in two points ((e, (f)). This leads to the fact that the input layer remains the same than \ReLU's, see (a) and (d). If we look at \SepLayer (h) and (i), we see how the feature space is much more linear and how topological structure is somewhat preserved, which is easy to understand when one sees the plane placement in the input layer (g). Finally, \SepPointUnit shows a much more non-linear representation at (k) and (l), although the separation is much more unintuitive.} 
   \label{fig:init} 
 \end{figure*}
+
+% \begin{figure*} 
+%     \centering
+%   \subfloat[\ReLU input \label{fig:reluInputInit}]{%
+%       \includegraphics[width=0.20\linewidth]{img/init/relu/0.pdf}}
+%   \subfloat[\ReLU feature layer \label{fig:reluInputFeatureInit}]{%
+%         \includegraphics[width=0.20\linewidth]{img/init/relu/49.pdf}}
+%   \subfloat[\ReLUBN input at epoch 40 \label{fig:relubnInputInit}]{%
+%         \includegraphics[width=0.20\linewidth]{img/init/relu-bn/0.pdf}}
+%   \subfloat[\ReLUBN feature layer at epoch 40 \label{fig:relubnFeatureInit}]{%
+%       \includegraphics[width=0.20\linewidth]{img/init/relu-bn/48.pdf}}
+%       \\
+%   \subfloat[\SepLayer input at epoch 0 \label{fig:sepInitInput0}]{%
+%       \includegraphics[width=0.20\linewidth]{img/init/layerwise/0/0.pdf}}
+%   \subfloat[\SepLayer feature layer at epoch 0 \label{fig:sepInitFeature0}]{%
+%         \includegraphics[width=0.20\linewidth]{img/init/layerwise/0/49.pdf}}
+%   \subfloat[\SepLayer input at epoch 16 \label{fig:sepInitInput16}]{%
+%       \includegraphics[width=0.20\linewidth]{img/init/layerwise/16/0.pdf}}
+%   \subfloat[\SepLayer feature layer at epoch 16 \label{fig:sepInitInput16}]{%
+%         \includegraphics[width=0.20\linewidth]{img/init/layerwise/16/49.pdf}}
+%         \\
+%   \subfloat[\SepLayer input at epoch 32\label{fig:sepInputInit32}]{%
+%       \includegraphics[width=0.20\linewidth]{img/init/layerwise/32/0.pdf}}
+%   \subfloat[\SepLayer feature layer at epoch 32\label{fig:sepInputInit32}]{%
+%         \includegraphics[width=0.20\linewidth]{img/init/layerwise/32/49.pdf}}
+% \subfloat[\SepLayer input at epoch 48\label{fig:sepInputInit48}]{%
+%       \includegraphics[width=0.20\linewidth]{img/init/layerwise/48/0.pdf}}
+%   \subfloat[\SepLayer feature layer at epoch 48 \label{fig:sepInputInit48}]{%
+%         \includegraphics[width=0.20\linewidth]{img/init/layerwise/48/49.pdf}}
+
+%   \caption{This figure shows the input and feature layers of network composed of 50 layers of 4 units each. The network is trained without loss, implying that for \ReLU it is left as it was initialized and in the case of \ReLUBN a number of epochs is run in order to ensure that the moments are adjusted. We train also \SepLayer for a number of epochs in order to understand what changes are undergoing in the network if we only optimize the separation constraint, without no additional loss. We find that the Glorot initialization used with \ReLU is quite poor with regards to the resulting representation in the feature layer, as we see in (b). As we see in \ref{fig:toy}, \ReLU tends to pack all the data to zero as the network grows in depth, disregarding the initialization. \ReLUBN is able to push some data from zero, see (d), but we argue that this is product of the biases of the network, other than a real connection with the data. This leads to the fact that the input layer remains the same than \ReLU's, see (c). If we look at \SepLayer (e-l), we see how at the beginning ((e), (f)) the starting point is indeed the same than \ReLU, but incrementally thanks to the separating constraint, it pushes the hyperplanes all the way back to the input (g) so it is able to have a much better representation at (j).} 
+%   \label{fig:init} 
+% \end{figure*}
 
 \subsection{Results concerning Accuracy}\label{subsec:accuracyResults}
 To gauge accuracy between \ReLU, \ReLU +  batchnorm (\texttt{\ReLU+BN}), and \SepUnit we tested all variants of \SepUnit as described on definition \ref{def:separationConstraints} for the \moons dataset, introducing also  \SepPointUnit combining \SepUnit and \SepPoint. \SepUnit shows a disparity in improvements against batchnorm, between both datasets, but shows significant improvements over the basic \ReLU baseline (that yields \emph{trivial} accuracies of $40$\% in \moons and $10$\% in \cifar), under the Glorot initialization scheme. The reader can observe Table \ref{tab:moons} for \moons (where all \SepConstraint variants were tested) and Table \ref{tab:cifar10} for \cifar (displaying only \SepLayer) for verification. 
