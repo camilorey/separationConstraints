@@ -349,38 +349,7 @@ We find that both \ReLU and \ReLUBN send concentrate all the data  either in a s
   \label{fig:init} 
 \end{figure*}
 
-% \begin{figure*} 
-%     \centering
-%   \subfloat[\ReLU input \label{fig:reluInputInit}]{%
-%       \includegraphics[width=0.20\linewidth]{img/init/relu/0.pdf}}
-%   \subfloat[\ReLU feature layer \label{fig:reluInputFeatureInit}]{%
-%         \includegraphics[width=0.20\linewidth]{img/init/relu/49.pdf}}
-%   \subfloat[\ReLUBN input at epoch 40 \label{fig:relubnInputInit}]{%
-%         \includegraphics[width=0.20\linewidth]{img/init/relu-bn/0.pdf}}
-%   \subfloat[\ReLUBN feature layer at epoch 40 \label{fig:relubnFeatureInit}]{%
-%       \includegraphics[width=0.20\linewidth]{img/init/relu-bn/48.pdf}}
-%       \\
-%   \subfloat[\SepLayer input at epoch 0 \label{fig:sepInitInput0}]{%
-%       \includegraphics[width=0.20\linewidth]{img/init/layerwise/0/0.pdf}}
-%   \subfloat[\SepLayer feature layer at epoch 0 \label{fig:sepInitFeature0}]{%
-%         \includegraphics[width=0.20\linewidth]{img/init/layerwise/0/49.pdf}}
-%   \subfloat[\SepLayer input at epoch 16 \label{fig:sepInitInput16}]{%
-%       \includegraphics[width=0.20\linewidth]{img/init/layerwise/16/0.pdf}}
-%   \subfloat[\SepLayer feature layer at epoch 16 \label{fig:sepInitInput16}]{%
-%         \includegraphics[width=0.20\linewidth]{img/init/layerwise/16/49.pdf}}
-%         \\
-%   \subfloat[\SepLayer input at epoch 32\label{fig:sepInputInit32}]{%
-%       \includegraphics[width=0.20\linewidth]{img/init/layerwise/32/0.pdf}}
-%   \subfloat[\SepLayer feature layer at epoch 32\label{fig:sepInputInit32}]{%
-%         \includegraphics[width=0.20\linewidth]{img/init/layerwise/32/49.pdf}}
-% \subfloat[\SepLayer input at epoch 48\label{fig:sepInputInit48}]{%
-%       \includegraphics[width=0.20\linewidth]{img/init/layerwise/48/0.pdf}}
-%   \subfloat[\SepLayer feature layer at epoch 48 \label{fig:sepInputInit48}]{%
-%         \includegraphics[width=0.20\linewidth]{img/init/layerwise/48/49.pdf}}
 
-%   \caption{This figure shows the input and feature layers of network composed of 50 layers of 4 units each. The network is trained without loss, implying that for \ReLU it is left as it was initialized and in the case of \ReLUBN a number of epochs is run in order to ensure that the moments are adjusted. We train also \SepLayer for a number of epochs in order to understand what changes are undergoing in the network if we only optimize the separation constraint, without no additional loss. We find that the Glorot initialization used with \ReLU is quite poor with regards to the resulting representation in the feature layer, as we see in (b). As we see in \ref{fig:toy}, \ReLU tends to pack all the data to zero as the network grows in depth, disregarding the initialization. \ReLUBN is able to push some data from zero, see (d), but we argue that this is product of the biases of the network, other than a real connection with the data. This leads to the fact that the input layer remains the same than \ReLU's, see (c). If we look at \SepLayer (e-l), we see how at the beginning ((e), (f)) the starting point is indeed the same than \ReLU, but incrementally thanks to the separating constraint, it pushes the hyperplanes all the way back to the input (g) so it is able to have a much better representation at (j).} 
-%   \label{fig:init} 
-% \end{figure*}
 
 \subsection{Results concerning Accuracy}\label{subsec:accuracyResults}
 To gauge accuracy between \ReLU, \ReLU +  batchnorm (\texttt{\ReLU+BN}), and \SepUnit we tested all variants of \SepUnit as described on definition \ref{def:separationConstraints} for the \moons dataset, introducing also  \SepPointUnit combining \SepUnit and \SepPoint. \SepUnit shows a disparity in improvements against batchnorm, between both datasets, but shows significant improvements over the basic \ReLU baseline (that yields \emph{trivial} accuracies of $40$\% in \moons and $10$\% in \cifar), under the Glorot initialization scheme. The reader can observe Table \ref{tab:moons} for \moons (where all \SepConstraint variants were tested) and Table \ref{tab:cifar10} for \cifar (displaying only \SepLayer) for verification. 
