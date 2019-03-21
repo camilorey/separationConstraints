@@ -34,7 +34,7 @@ Experimentation was done in the \moons dataset. We sampled $100$ points ($85$ fo
 \subsection{Classification}\label{subsec:classification}
 
 
-In order to understand the effect that separability has we use the \moons dataset. We train 50x4 network on the moons dataset with batch size equal to the entire training set ($85$) using a learning rate $0.01$ and the Adam optimizer \cite{adam} for each of the versions of the constraint using a scalarization parameter $\lambda \in \{1, 0.01\}$, against \ReLU and \ReLUBN trained with the same parameters. We show the results in Figures \ref{fig:moonsReLU} for \ReLU,\ref{fig:moonsReLUBN} for \ReLUBN,\ref{fig:moonsLayerwise} for \SepLayer,\ref{fig:moonsUnitwise} for \SepUnit,\ref{fig:moonsPointwise} for \SepPoint and \ref{fig:moonsUnitpointwise} for \SepUnitPoint. The first column shows the data space with the partitions performed by the first layer in the native space. The blue lines show the separating plane whereas the gray zone accounts for the zero area of each of the 4 units. Next to it, we show the 4th, 25th and classification layers in pairs (one plot for the first and second coordinates and another for the third and fourth coordinates), to see how the data evolves as in goes through the network. Finally, the last column shows the output surface of the network in the original data space. 
+In order to understand the effect that separability has we use the \moons dataset. We train 50x4 network on the moons dataset with batch size equal to the entire training set ($85$) using a learning rate $0.01$ and the Adam optimizer \cite{adam} for each of the versions of the constraint using a scalarization parameter $\lambda \in \{1, 0.01\}$, against \ReLU and \ReLUBN trained with the same parameters. We show the results in Figures \ref{fig:moonsReLU} for \ReLU,\ref{fig:moonsReLUBN} for \ReLUBN,\ref{fig:moonsLayerwise} for \SepLayer,\ref{fig:moonsUnitwise} for \SepUnit,\ref{fig:moonsPointwise} for \SepPoint and \ref{fig:moonsUnitpointwise} for \SepUnitPoint. The first column shows the data space with the partitions performed by the first layer in the native space. The blue lines show the separating plane whereas the gray zone accounts for the zero area of each of the 4 units. Next to it, we show the 4th, 25th and Feature layers in pairs (one plot for the first and second coordinates and another for the third and fourth coordinates), to see how the data evolves as in goes through the network. Finally, the last column shows the output surface of the network in the original data space. 
 
 \begin{figure*}
   \centering
@@ -56,9 +56,9 @@ In order to understand the effect that separability has we use the \moons datase
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{Classification layer}{\includegraphics[width=\hsize]{img/toy/relu/dense_1-0.pdf}}
+      \subcaptionbox{Feature layer}{\includegraphics[width=\hsize]{img/toy/relu/dense_1-0.pdf}}
     %   \vskip1em
-      \subcaptionbox{Classification layer}{\includegraphics[width=\hsize]{img/toy/relu/dense_1-2.pdf}} 
+      \subcaptionbox{Feature layer}{\includegraphics[width=\hsize]{img/toy/relu/dense_1-2.pdf}} 
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
@@ -127,9 +127,9 @@ Notice how the gradient has changed the separation performed by \ReLU in Figure 
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{Classification layer}{\includegraphics[width=\hsize]{img/toy/layerwise/dense_1-0.pdf}}
+      \subcaptionbox{Feature layer}{\includegraphics[width=\hsize]{img/toy/layerwise/dense_1-0.pdf}}
     %   \vskip1em
-      \subcaptionbox{Classification layer}{\includegraphics[width=\hsize]{img/toy/layerwise/dense_1-2.pdf}} 
+      \subcaptionbox{Feature layer}{\includegraphics[width=\hsize]{img/toy/layerwise/dense_1-2.pdf}} 
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
@@ -164,9 +164,9 @@ In the other hand, our relaxed version of our proposal \SepLayer, see Figure \re
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{Classification layer}{\includegraphics[width=\hsize]{img/toy/unitwise/dense_1-0.pdf}}
+      \subcaptionbox{Feature layer}{\includegraphics[width=\hsize]{img/toy/unitwise/dense_1-0.pdf}}
     %   \vskip1em
-      \subcaptionbox{Classification layer}{\includegraphics[width=\hsize]{img/toy/unitwise/dense_1-2.pdf}} 
+      \subcaptionbox{Feature layer}{\includegraphics[width=\hsize]{img/toy/unitwise/dense_1-2.pdf}} 
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
@@ -178,7 +178,7 @@ In the other hand, our relaxed version of our proposal \SepLayer, see Figure \re
 \end{figure*}
 
 
-Figure \ref{fig:moonsUnitwise} shows our restricted version \SepUnit, which forces all the units of the network to separate but does not consider activation with regard to the points. Because this, solutions like activating all the units of the layer for a single point and sending the rest to zero are still valid, as we showcased in \ref{eq:unitFail}. Therefore, we expect it to fail. Notice how even the network fails, the representation in the output found by the network is non-trivial and propagates all way to the input layer.
+Figure \ref{fig:moonsUnitwise} shows our restricted version \SepUnit, which forces all the units of the network to separate but does not consider activation with regard to the points. Because this, solutions like activating all the units of the layer for a single point and sending the rest to zero are still valid, as we explained in \ref{eq:unitFail}. Therefore, we expect it to fail. However, the network still converges to a close to optimal solution. Notice how the feature layer \ref{fig:moonsUnitwise}(f,g) is much more polarized than \SepLayer \ref{fig:moonsLayerwise}(f,g), similar to \ReLUBN \ref{fig:moonsReLUBN}(f,g), although the solution is much better and the representation at layer 25 (d,e) is richer. However, this solution is transitory and the training breaks after some epochs. Further research is thus required in this regard.
 
 \begin{figure*}
   \centering
@@ -236,9 +236,9 @@ The constraint \SepPoint is shown at Figure \ref{fig:moonsPointwise}. We see how
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{Classification layer}{\includegraphics[width=\hsize]{img/toy/unitpointwise/dense_1-0.pdf}}
+      \subcaptionbox{Feature layer}{\includegraphics[width=\hsize]{img/toy/unitpointwise/dense_1-0.pdf}}
     %   \vskip1em
-      \subcaptionbox{Classification layer}{\includegraphics[width=\hsize]{img/toy/unitpointwise/dense_1-2.pdf}} 
+      \subcaptionbox{Feature layer}{\includegraphics[width=\hsize]{img/toy/unitpointwise/dense_1-2.pdf}} 
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
@@ -256,7 +256,7 @@ Finally, if we combine \SepPoint with \SepPoint in \SepUnitPoint, we find how is
 
 One interesting question is to understand which effect has the separation constraint by itself, without loss functional. Therefore, we train the same 50x4 network and hyperparameters than the experiment from \ref{subsec:classification}. Then we leave the network to optimize the different constraints that we propose to see what is the result of enforcing separation and nothing else. We use \ReLU and \ReLUBN for comparison purposes. 
 
-We find that both \ReLU and \ReLUBN send concentrate all the data either in a single point in the case of \ReLU and two points in the case of \ReLUBN, see figure \ref{fig:init}. This explains the failure in \ref{fig:moonsReLU} and \ref{fig:moonsReLUBN}. In the other hand, we find how \SepLayer connects the output with in the input by sort of linearizing the network, thus outputting something very similar to a linear classifier. This is consistent with \cite{batchnormGradientExplosion}, where the authors prove that the network performs best as the units work closest to the linear regime. However, in their work they force \emph{tanh} activations into their linear regime to find that the depth is increased, whereas we leave the network to decide the units when is better to use a affine transform, to disable itself or perform in a non-linear manner. If we use \SepUnitPoint, we see that we lose smoothness but the feature rspresentation is still reasonable, showing connectivity among the points, proof that up to some extent topological structure is preserved. Notice how the shape of the input layer is quite similar to the final solution found in Figure \ref{fig:moonsUnitpointwise}(a) when using a loss functional. 
+We find that both \ReLU and \ReLUBN send concentrate all the data either in a single point in the case of \ReLU and two points in the case of \ReLUBN, see figure \ref{fig:init}. This explains the failure in \ref{fig:moonsReLU} and \ref{fig:moonsReLUBN}. In the other hand, we find how \SepLayer connects the output with in the input by sort of linearizing the network, thus outputting something very similar to a linear classifier. This is consistent with \cite{batchnormGradientExplosion}, where the authors prove that the network performs best as the units work closest to the linear regime. However, in their work they force \emph{tanh} activations into their linear regime to find that the depth is increased, whereas we leave the network to decide the units when is better to use a affine transform, to disable itself or perform in a non-linear manner. If we use \SepUnitPoint, we see that we lose smoothness but the feature representation is still reasonable, showing connectivity among the points, proof that up to some extent topological structure is preserved. Notice how the shape of the input layer is quite similar to the final solution found in Figure \ref{fig:moonsUnitpointwise}(a) when using a loss functional, but the feature layer is much richer. 
 
 All of this translates into the dynamics shown in figure \ref{fig:peaks}, where we can see the convergence plot for \SepUnitPoint. The constraint loss pulls the weights into directions which harm cross-entropy, thus lowering accuracy, but that are better on the long run, so when cross-entropy converges the network achieves better accuracy than before the drop. Nevertheless, this behaviour is not always consistent and sometimes the constraint loss break the training process after some iterations, thus further research is required in this regard.
 
