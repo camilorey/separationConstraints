@@ -18,46 +18,37 @@ for some loss functional that depends on the training set $T$ and $\theta$ (see 
 \\\\
 Conceptually, we wish to enforce \ReLU \emph{separability} based on the definition provided in equation \ref{eq:separabilityDefinition}. However, set theoretic functions are not differentiable \cite{Glorot10Initialization,lecun2015DeepLearningBig,munkres2000Topology}. 
 \\\\
-To bridge that gap, we will make an adaptation based on the technique of Support Vector Machines as presented for example in  \cite{Burges1998TutorialOnSVMForPatternRecognition} or \cite{Hearst1998SupportVectorMachines}. 
+To bridge that gap, we will make an adaptation inspired on the technique of Support Vector Machines as presented for example in  \cite{Burges1998TutorialOnSVMForPatternRecognition} or \cite{Hearst1998SupportVectorMachines}. 
 \\\\\
-That is, given a fixed choice of weight vector  $\vec{w}\in\Real{n}$ and bias $b\in\mathbb{R}$, we define \emph{margins} $\xi^{+},\xi^{-}\geq 0$ for a dataset $\mathcal{T}$ (via set $X$) as a pair of numbers such that
+That is, given a fixed choice of weight vector  $\vec{w}\in\Real{n}$ and bias $b\in\mathbb{R}$, we define slack variables $\xi^{+},\xi^{-}\geq 0$ for a dataset $\mathcal{T}$ (via set $X$) as a pair of numbers such that
 \begin{equation}\label{eq:basicConstraintFormulation}
 \begin{array}{lcl}
     \max\{\vec{w}\cdot\vec{x}+b|\vec{x}\in X\}\geq 1-\xi^{+}\\
     \min\{\vec{w}\cdot\vec{x}+b|\vec{x}\in X\}\leq -1+\xi^{-}\\
 \end{array}
 \end{equation}
-This margin parameters can be added to the original optimization problem  (equation \ref{eq:marginOptimizationProblem}) as
+This slack variables can be added to the optimization problem \ref{eq:generalOptimizationProblem} as a multiobjective optimization problem using a technique known as scalarization \cite{boyd} (equation \ref{eq:marginOptimizationProblem}) as
 \begin{equation}\label{eq:marginOptimizationProblem}
 \argmin_{\theta,\xi^{+},\xi^{-}} \mathcal{L}(\mathcal{T},\theta) + \lambda g(\xi^{+},\xi^{-})
 \end{equation}
-where $\lambda$ is a \emph{hyper-parameter} that introduces a trade-off between the loss fulfilling of the constraints, a technique known as \emph{scalarization} \cite{boyd}. Intuitively, we mean to \emph{balance} the effect of the constraints within the semantics of the problem.
+where $\lambda$ is a \emph{hyper-parameter} that introduces a trade-off between the constraint fulfillment and the main task loss. Intuitively, we mean to \emph{balance} the effect of the constraints and solving the actual problem.
 Also, we will require that function $g$ is non-negative, so that in the limit (i.e. when minimized), the original loss will keep the training process going. 
 \\\\
 The intuition behind the introduction of these constraints presented in Equation \ref{eq:basicConstraintFormulation} is as follows. 
 \\\\
-In the same spirit of SVM, the $\xi^{+}$ intends to create AT LEAST ONE pre-activation value GREATER (or equal) than 1, in order to  hopefully force the weights and biases to be chosen so that the lower part of the units is non-empty. 
+We introduce the constraints in pair according to the sign. $\xi^{+}$ intends to create at least one pre-activation value greater (or equal) than 1, in order to force the weights and biases to be chosen so that the lower part of the units is non-empty. 
 \\\\
-In symmetry, enforcing the constraint with $\xi^{-}$ promotes AT LEAST ONE pre-activation of points of $X$ BELOW -1. This intends to ensure that the upper parts of the units are non-empty. 
+In symmetry, enforcing the constraint with $\xi^{-}$ promotes at least pre-activation of points of $X$ below -1. This intends to ensure that the upper parts of the units are non-empty. Notice how the inclusion of the \emph{max} is what carries this effect of \emph{at least one}, and what it makes different from SVM.
 \\\\
 Thus, since neither the upper, nor the lower part of the unit is empty (i.e. the units are neither dead nor redundant in the sense of equations \ref{eq:deadNeuronVersion1} and equation \ref{eq:redundantNeuron} respectively).
 \\\\
-NO SE SI HACE FALTA However, fixing a hard margin as done in SVM may yield an unfeasible problem. In that sense, both $\xi^{+}$ and $\xi^{-}$ work as \emph{slack} variables (a soft margin) \cite{Burges1998TutorialOnSVMForPatternRecognition,Hearst1998SupportVectorMachines}.
-\\\\
-VER SUBSECTION PARA ELLO As an improvement over preceding techniques, and in order to provide some heuristic not to deadlock the training process with the introduction of function $g$ in the loss funtional, we suggest that we start with \emph{all} parameters to zero (i.e. perform a \emph{zero-initialization}). 
-\\\\
-Moreover, we introduce a basic template for function $g$:
+Additionally, since introducing those constraints imply the the value of the weights now depend on it output instead of only on the loss functional, this enables to use \emph{zero-initialization}. However, notice that since values of $\xi^+$ and $\xi^-$ will be equal and cancel each other, we need to introduce a mechanism to break the tie. In our case we chose a convex combination of both that we name $g$. We use a negligible value (0.51 in practice) so it does not bias the problem.
+
 \begin{equation}\label{eq:definitionOfRho}
     g(\xi^{+},\xi^{-}) = \rho\xi^{+}+(1-\rho)\xi^{-}
 \end{equation}
 
-EXPLICAR QUE RHO ES PARA ZERO INIT
-
-In order to enable zero initialization we have the problem of that the gradient of the positive and negative part of the constraint cancels each other. In order to solve this problem, we introduce a convex combination of the constraints which weights each one. With this we can bias them to the positive side with an small value (0.51 in practice). Doing so to the negative would send all the data to the negative, thus killing the unit MIRAR ESTO. Once the first iteration has passed this we deem the impact of the imbalance negligible.
-
-Intuitively this choice of function $g$ has two meanings. On the one hand, we choose to minimize a weakened version of the $L_1$ norm of the vector $\vec{xi}=(\xi^{+},\xi^{-})$ to minimize the margin values. On the other, the choice of $\rho\neq 1/2$ will force the separation to be non-symmetrical. We believe that this will force the gradient of the loss (augmented with $g$) to induce a richer dynamic while under training \cite{LeCun06atutorial}. 
-\\\\
-What remains of this section is to choose margins and enforce constraints at different structures of a network: by unit, by layer, and \emph{by point}.
+What remains of this section is to choose the object of the constraints among the different structures of a network: by unit, by layer, and \emph{by point}.
 
 \subsection{Unit based separation constraints \SepUnit}\label{subsec:sepUnit}
 Within a \ReLU DNN $F$, choose a unit $u_j^k$ in layer $\layer_k:\Real{n_k}\rightarrow\Real{m_k}$. This unit will be defined univocally by its parameters:
@@ -71,7 +62,7 @@ in order to enforce separation within this unit, we must substitute parameters i
     \min\{\vec{w}^k_j\cdot\vec{x}+b^k_j|\vec{x}\in X\}\leq -1+\xi^{-}_{jk}\\
 \end{array}
 \end{equation}
-for $k=1,\ldots,D$ and $j$ the number of units per layer. As a consequence, we will need to introducuce balancing parameters $rho_{jk}$ on function $g$. Individually, we will need to minimize functions of the form
+for $k=1,\ldots,D$ and $j$ the number of units per layer. As a consequence, we will need to introduce balancing parameters $rho_{jk}$ on function $g$. Individually, we will need to minimize functions of the form
 \begin{equation}
     g(\xi^{+},\xi^{-}) = \rho_{jk}\xi^{+}_{jk}+(1-\rho_{jk})\xi^{-}_{jk}
 \end{equation}
@@ -94,11 +85,11 @@ However, this formulation lacks for a simple reason. Although we are forcing the
 
 \subsection{Point Based Separation \SepPoint}\label{subsec:sepPoint}
 
-In order to fix the trivial failure modes with \SepUnit describe at \ref{subsec:sepUnit}, where several points have null activation, we introduce a constraint focused on points. Additionally, as in practice we do not use the entire dataset when under training, but rather use \emph{batches} \cite{LeCun06atutorial}, small batch size may cause inconsistencies within the training process (lack of commesurality of the batch statistics with the rest of the dataset, excessive locality of the sample might lead to lack of generalization and convergence, etc...). In our case, those issues would translate in penalizing the units by not fulfilling \SepUnit in the current batch because the point that makes them comply is in another batch.  
+We need to fix the trivial failure modes suffered by \SepUnit described at \ref{subsec:sepUnit}, where several points have null activation. Simultaneously, as in practice we do not use the entire dataset when under training, but rather use \emph{batches} \cite{LeCun06atutorial}, small batch size may cause inconsistencies within the training process (lack of commesurality of the batch statistics with the rest of the dataset, excessive locality of the sample might lead to lack of generalization and convergence, etc...). In our case, those issues would translate in penalizing the units by not fulfilling \SepUnit in the current batch because the point that makes them comply is in another batch.  
 \\\\
-We need to make our constraint formulation impervious to batch choice by focusing on the values that constraints take on specific points as well as fixing trivial failure modes. 
+We need to make our constraint formulation impervious to batch choice by focusing on the values that constraints take on specific points. 
 \\\\
-That is, we will constraint the slacks $\xi^{\pm}$ to specific EACH? points on the batch, so that at least one of them satisfies the constraints. That is given $\vec{x}\in X$, and $u_1,\ldots,u_m$ unit functions in a layer, we define slack variables $\xi^{-}_{xk},\xi^{+}_{xk}\geq 0$ in the context of the following constraints:
+That is, we will constraint the slacks $\xi^{\pm}$ to each point on the batch. That is given $\vec{x}\in X$, and $u_1,\ldots,u_m$ unit functions in a layer, we define slack variables $\xi^{-}_{xk},\xi^{+}_{xk}\geq 0$ in the context of the following constraints:
 \begin{equation}\label{eq:pointSeparationConstraint}
 \begin{array}{lcl}
     \displaystyle\max_{j=1,\ldots,m}\{\vec{w}^j_k\cdot\vec{x}+b^j_k\}\geq 1-\xi^{+}_{xk}\\\\
@@ -110,7 +101,7 @@ so that the associated term to minimize will have the following form \ref{eq:con
     G = \sum_{k=1}^{D}\rho_{k}\xi^{+}_{xk}+(1-\rho_{k})\xi^{-}_{xk}
 \end{equation}
 
-This forces that each point has a positive and negative pre-activation, thus solving the problem of \SepUnit where there were points which never/always activated. However, we remark that as this constraint does not place any restrictions to the units in regard on whether they are affine or not, a linear separation is perfectly valid, so often the use of this constraint alone results in solutions close to the linear form. Also, it is possible that one unit is activated for all the points and the rest are dead, as we show in eq. \ref{eq:pointFail}.
+This solves the problem of \SepUnit where there were points which never/always activated. It also removes any dependence on the size of the batch, as each point receives its own. However, we remark that as this constraint does not place any restrictions to the units in regard on whether they separate their input data, the use of this constraint alone often results in solutions close to the linear form. Also, it is possible that one unit is activated for all the points and the rest are dead, as we show in eq. \ref{eq:pointFail}.
 
 \begin{equation}\label{eq:pointFail}
     \bordermatrix{ &u_1& u_2&\ldots &u_l\cr
@@ -122,7 +113,7 @@ This forces that each point has a positive and negative pre-activation, thus sol
 
 \subsection{Unit and Point Based Separation \SepUnitPoint}\label{subsec:sepUnitPoint}
 
-In order to overcome the problems previously exposed in \ref{subsec:sepUnit} and \ref{subsec:sepPoint}, we combine them in which we call \SepUnitPoint. With this we find experimentally that both problems, linearity of \SepPoint and trivial failure of \SepUnit are solved.
+In order to overcome the problems previously exposed in \ref{subsec:sepUnit} and \ref{subsec:sepPoint}, we combine them in which we call \SepUnitPoint. With this we address both problems, linearity of \SepPoint and trivial failure of \SepUnit.
 
 \subsection{Layer Based Separation \SepLayer}\label{subsec:sepLayer}
 
@@ -132,14 +123,14 @@ Thus, it is important to provide a mechanism to forward the output of intermedia
 \\\\
 We suggest to relax the \SepUnit formulation for that aim and provide the reader with the \SepLayer formulation. The intuition here is to require that at least \emph{one} of the pre-activations of the entire batch is greater than 1 and another is less than -1, per layer.  
 \\\\
-With this change we allow the presence of redundant units, but ensure that at least for all the points in the batch and all the pre-activations of the layer, there is at least one pre-activation greater (or lesser) than 1 (-1). That is, given a layer $\layer_k$ we define the \emph{layer} margins $\xi^{-}_k$ and $\xi^{+}_k$, and rewrite equation \ref{eq:basicConstraintFormulation} as follows:
+With this change we allow the presence of redundant units, but ensure that there is at least one pre-activation greater (or lesser) than 1 (-1). That is, given a layer $\layer_k$ we define the \emph{layer} margins $\xi^{-}_k$ and $\xi^{+}_k$, and rewrite equation \ref{eq:basicConstraintFormulation} as follows:
 \begin{equation}\label{eq:layerSeparationConstraint}
 \begin{array}{lcl}
     \displaystyle\max_{\vec{x}\in{X}}\max_{j=1,\ldots,m_k}\{\vec{w}^j_k\cdot\vec{x}+b^j_k\}\geq 1-\xi^{+}_k\\\\
     \displaystyle\min_{\vec{x}\in{X}}\min_{j=1,\ldots,m_k}\{\vec{w}^j_k\cdot\vec{x}+b^j_k\}\leq -1+\xi^{-}_k\\
 \end{array}    
 \end{equation}
-We will need to introduce only $D$ constraints (for each layer). In addition, the term to minimize alongside with the loss functional is as follows:
+We will need to introduce only $D$ constraints (one for each layer). In addition, the term to minimize alongside with the loss functional is as follows:
 \begin{equation}\label{eq:constraintLossForLayerSeparation}
     G = \sum_{k=1}^{D}\lambda_k(\rho_{k}\xi^{+}_{k}+(1-\rho_{k})\xi^{-}_{k})
 \end{equation}

@@ -1,4 +1,4 @@
-\section{Neural networks and unit separability}
+\section{Neural networks and unit separability}\label{sec:separability}
 
 A traditional so-called \emph{neural network} is composed of \emph{layers} whose input is the output of the previous \emph{layer} \ref{eq:layer}, which are composed of a set of arbitrary real-valued functions in $\mathbb{R}$ called \emph{units}\ref{eq:unit}. The units are commonly composed of an affine transform, parameterized by a vector of weights $\vec{w}$ and an scalar bias $b$, followed by a non-linear \emph{activation function} $\sigma : \mathbb{R}\rightarrow\mathbb{R}$. In the case of the \ReLU this activation function is consist in the truncation to zero of negative values.
 
@@ -58,23 +58,23 @@ Thus, we can define \emph{unit separability} for a given dataset $\mathcal{T}$ v
 \begin{equation}\label{eq:deadNeuronVersion1}
  upper(u)\cap X = \emptyset \
 \end{equation}
-this means that unit $u_j$ is not activates by any point in the data set. On symmetry  we say that $u$ is \emph{redundant} if it is activated by \emph{every} point in $X$. That is, 
-\begin{equation}\label{eq:redundantNeuron}
+this means that unit $u_j$ is not activates by any point in the data set. On symmetry  we say that $u$ is \emph{affine} if it is activated by \emph{every} point in $X$. That is, 
+\begin{equation}\label{eq:affineNeuron}
  upper(u)\cap X = X
 \end{equation}
 notice that this characterization is also valid using the lower part of $u$. Namely, $u$ is dead with regards to set $X$ if
 \begin{equation}\label{eq:deadNeuronVersion2}
     lower(u)\cap X = X
 \end{equation}
-and $u$ is also redundant in terms of the lower part of $u$ if 
+and $u$ is also affine in terms of the lower part of $u$ if 
 \begin{equation}
     lower(u)\cap X = \emptyset
 \end{equation}
-While a redundant unit \emph{downgrades} the unit to an affine transform, \emph{dead} units compromise the \emph{representative} ability of the network.
+While a affine unit \emph{downgrades} the unit to an redundant transform (since it can be carried out by the following unit), \emph{dead} units compromise the \emph{representative} ability of the network.
 \\\\
-While dead neurons have been traditionally accepted as a minor issue for DNN related pheoneman, we argue as well that redundant units are also not devoid of caveats.
+While dead neurons have been traditionally accepted as a minor issue for DNN related pheoneman, we argue as well that affine units are also not devoid of caveats.
 \\\\
-Thus, we wish to construct DNN in which the units \emph{separate} through set $X$ in the sense that they are neither \emph{dead}, nor \emph{redundant}. In terms of the sets defined so far, we can do this in two (equivalent) ways:
+Thus, we wish to construct DNN in which the units \emph{separate} through set $X$ in the sense that they are neither \emph{dead}, nor \emph{affine}. In terms of the sets defined so far, we can do this in two (equivalent) ways:
 \begin{equation}\label{eq:separabilityDefinition}
 \begin{array}{c}
     \emptyset \neq upper(u)\cap X \neq X\\
