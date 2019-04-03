@@ -40,7 +40,7 @@ We introduce the constraints in pair according to the sign. $\xi^{+}$ intends to
 \\\\
 In symmetry, enforcing the constraint with $\xi^{-}$ promotes at least pre-activation of points of $X$ below -1. This intends to ensure that the upper parts of the units are non-empty. Notice how the inclusion of the \emph{max} is what carries this effect of \emph{at least one}, and what it makes different from SVM.
 \\\\
-Thus, since neither the upper, nor the lower part of the unit is empty (i.e. the units are neither dead nor redundant in the sense of equations \ref{eq:deadNeuronVersion1} and equation \ref{eq:redundantNeuron} respectively).
+Thus, since neither the upper, nor the lower part of the unit is empty (i.e. the units are neither dead nor affine in the sense of equations \ref{eq:deadUnitVersion1} and equation \ref{eq:affineUnit} respectively).
 \\\\
 Additionally, since introducing those constraints imply the the value of the weights now depend on it output instead of only on the loss functional, this enables to use \emph{zero-initialization}. However, notice that since values of $\xi^+$ and $\xi^-$ will be equal and cancel each other, we need to introduce a mechanism to break the tie. In our case we chose a convex combination of both that we name $g$. We use a negligible value (0.51 in practice) so it does not bias the problem.
 
@@ -72,7 +72,7 @@ so that at a global scale we will have to add to the loss functional a term of t
 \end{equation}
 We name this the \emph{separation by unit} formulation \SepUnit.
 
-However, this formulation lacks for a simple reason. Although we are forcing the units to not to be dead or redundant, several configurations are still possible which would harm the performance in a trivial way, for instance, we can set a point to have a pre-activation greater than 1 for all the units of the layer and the rest to zero. Having most of the dataset sent to zero is obviously a bad idea, see Eq. \ref{eq:unitFail}
+However, this formulation lacks for a simple reason. Although we are forcing the units to not to be dead or affine, several configurations are still possible which would harm the performance in a trivial way, for instance, we can set a point to have a pre-activation greater than 1 for all the units of the layer and the rest to zero. Having most of the dataset sent to zero is obviously a bad idea, see Eq. \ref{eq:unitFail}
 
 \begin{equation}\label{eq:unitFail}
     \bordermatrix{ &u_1& u_2&\ldots &u_l\cr
@@ -123,7 +123,7 @@ Thus, it is important to provide a mechanism to forward the output of intermedia
 \\\\
 We suggest to relax the \SepUnit formulation for that aim and provide the reader with the \SepLayer formulation. The intuition here is to require that at least \emph{one} of the pre-activations of the entire batch is greater than 1 and another is less than -1, per layer.  
 \\\\
-With this change we allow the presence of redundant units, but ensure that there is at least one pre-activation greater (or lesser) than 1 (-1). That is, given a layer $\layer_k$ we define the \emph{layer} margins $\xi^{-}_k$ and $\xi^{+}_k$, and rewrite equation \ref{eq:basicConstraintFormulation} as follows:
+With this change we allow the presence of affine units, but ensure that there is at least one pre-activation greater (or lesser) than 1 (-1). That is, given a layer $\layer_k$ we define the \emph{layer} margins $\xi^{-}_k$ and $\xi^{+}_k$, and rewrite equation \ref{eq:basicConstraintFormulation} as follows:
 \begin{equation}\label{eq:layerSeparationConstraint}
 \begin{array}{lcl}
     \displaystyle\max_{\vec{x}\in{X}}\max_{j=1,\ldots,m_k}\{\vec{w}^j_k\cdot\vec{x}+b^j_k\}\geq 1-\xi^{+}_k\\\\

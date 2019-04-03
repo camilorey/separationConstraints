@@ -44,7 +44,7 @@ Note that both upper and lower parts are --in the sense of linear algebra-- \emp
 \\\\
 In addition, Their boundary is defined by the hyperplane with normal vector $\vec{w}$ \emph{translated} by the bias $b$ \cite{boyd,florenzano2001ConvexAnalysis,Burges1998TutorialOnSVMForPatternRecognition}.
 
-\subsection{\ReLU separability}
+\subsection{\ReLU separability}\label{subsec:ReLUSeparability}
 
 Though \emph{separability} is an intrinsic property of real-valued functions (see for example the \emph{separation theorems} of convex analysis in \cite{florenzano2001ConvexAnalysis}  or \cite{Burges1998TutorialOnSVMForPatternRecognition}), we are interested in studying separability with regards to specific data sets $\mathcal{T}$. 
 \\\\
@@ -55,11 +55,11 @@ In order to do so, we isolate all the first components of points in $\mathcal{T}
 for all the pairs in $\mathcal{T}$ (in the sense of equation \ref{eq:dataset}). 
 \\\\
 Thus, we can define \emph{unit separability} for a given dataset $\mathcal{T}$ via $X$. More specifically, we say that a unit $u:\Real{n}\rightarrow\mathbb{R}$ is \emph{dead} with regards to set $X$ if
-\begin{equation}\label{eq:deadNeuronVersion1}
+\begin{equation}\label{eq:deadUnitVersion1}
  upper(u)\cap X = \emptyset \
 \end{equation}
 this means that unit $u_j$ is not activates by any point in the data set. On symmetry  we say that $u$ is \emph{affine} if it is activated by \emph{every} point in $X$. That is, 
-\begin{equation}\label{eq:affineNeuron}
+\begin{equation}\label{eq:affineUnit}
  upper(u)\cap X = X
 \end{equation}
 notice that this characterization is also valid using the lower part of $u$. Namely, $u$ is dead with regards to set $X$ if
