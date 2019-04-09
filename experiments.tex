@@ -22,121 +22,151 @@
 % \end{itemize}
 
 \section{Experiments and Results}\label{sec:experiments}
-After presenting the separability constraints, we test our formulation in an example of a feedfoward network, explicitly designed to avoid the use of any of techniques commonly used to train deep network described in \ref{sec:introduction}. This results in a \ReLU network of depth $d=50$, and fixed layer width $N_k=4$ which follows the following requirements.
-\begin{enumerate}
-    \item Use a simple feedforward architecture without additional connections (ResNet, DenseNet,...)
-    \item Use the minimum amount of units per layer as possible (width).
-    \item Use regular \ReLU.
-    \item Not using any normalization scheme.
-\end{enumerate}
-Experimentation was done in the \moons dataset. We sampled $100$ points ($85$ for training and $15$). We used \texttt{Keras}\cite{keras} and \texttt{TensorFlow}\cite{tensorflow} as framework for implementing the experiments.
+After presenting the separability constraints, we test our formulation in an example of a network according to our formulation (recall the introductory paragraph of section \ref{sec:separability}). Our network has a fixed depth $D=50$ and a fixed layer width of 4 units (i.e. $m_k=4$ for $k=1,\ldots,D$. To which we refuse to perform any architectural modifications. 
+\\\\
+Our intention is to benchmark our proposal to the most commonly used data manipulation technique: \emph{Batch Normalization} (BN for short). As a consequence, our results entail always a comparison between: (a) no data manipulation, (b) data manipulation via BN and (c) our technique. The only addition introduced during the training is \emph{Adam} \cite{adam}, when calculating gradients \cite{Goodfellow-et-al-2016}.  
+\\\\
+As a \emph{main} loss we chose to do a comparison between binary cross-entropy (a classic) in \cite{LeCun06atutorial}, and compare it to the case of \emph{no loss} ($\mathcal{L}\equiv 0$ in the introduction of section \ref{sec:separability}). We chose the no loss to explore the nature of the introduction of the separation constraints \emph{by themselves}.     
+\\\\
+As an initialization for all our experiments we chose two schemes: the Glorot scheme \cite{Glorot10Initialization} (by default on \texttt{Keras}) and a \emph{zero} initialization scheme (setting all parameters to zero), to verify our geometric intuition regarding the distribution of the upper and lower sets of units.   
+\\\\
+As a dataset, we choose a small version of the \moons dataset, sampling $100$ points ($85$ for training and $15$). Our experiments were done using \texttt{Keras}\cite{keras} and \texttt{TensorFlow}\cite{tensorflow}. We chose the hyperparameters $D$ and $m_k$ to showcase the functioning of our constraints formulation in a particularly \emph{deep} network (as a ratio of depth and layer-width). 
+\\\\
+We chose the \moons for its \emph{simplicity} in terms of point distribution (two classes parametrically created, see for example Figure \ref{fig:zerosInput3000} on top). Also, the separating functions $F$ created can be easily visualized in a surface map as showcased in Figure \ref{fig:zerosInput3000} (recall equation \ref{eq:network}). In this sense, it is easy to tell whether a classification is \emph{well done} (graphically) and we can relate it to accuracy values. The \moons dataset promotes intuition beyond scores or metrics.  
 
-\subsection{Classification}\label{subsec:classification}
+\subsection{On Classification}\label{subsec:classification}
+In this experiment we use the binary cross-entropy as the main loss, and connect it to the constraint loss with $\lambda \in \{0.0001, 1\}$ (recall Equation  \ref{eq:marginOptimizationProblem}).
+\\\\
+% Performance
+\ReLU nor \ReLUBN are able to solve the problem (See Figure \ref{fig:moonsReLUOutput} for \ReLU and  \ref{fig:moonsReLUBNOutput} for \ReLUBN). In terms of accuracy, \ReLU reaches a trivial accuracy of $0.51$ while \ReLUBN reaches $0.60$. 
+\\\\
+% Data forwarding ReLU
+Notice how in the case of \ReLU although in the lower layers the representation is non-trivial, see Figure \ref{fig:moonsReLU42}, it fails to forward the data upwards, see Figures \ref{fig:moonsReLU251} and \ref{fig:moonsReLU252}. The problem worsen across the layers, until eventually the entire dataset is mapped to zero. This renders the output layer unable to solve the problem, see Figures
+\\\\
+% Data forwading ReLU-BN
+The case of \ReLUBN the dataset is mapped to few points instead. We understand that this is because the structure of the unit hyperplanes are unchanged with respect \ReLU, only that the Batch Normalization will move some of the points from zero through standarization. \ReLUBN will simply map those points to values different from zero through standarization, recall Figures \ref{fig:moonsReLUBNFeature1} and \ref{fig:moonsReLUFeature2}. 
+ \\\\
+ Since those points have gone through a truncation in order to pack together, their gradient will not be backpropagated across it to lower layers, resulting in modifying only $\gamma$ and $\beta$, which explains the poor placement of the planes in Figures \ref{fig:moonsReLUBNFeature1} and \ref{fig:moonsReLUBNFeature2}.
+ \\\\
+ Our intuition is that this phenomenon is a case of\emph{topological mixing}\cite{munkres2000Topology} similar to the \emph{tent map}. 
+\\\\
+\\\\
+% If the feature layer is dead the network is dead
+This renders the feature layer (50th layer) unable to perform any separation, see Figures \ref{fig:moonsReLUFeature1} and \ref{fig:moonsReLUFeature2}, which ultimately results in failing to solve the problem, see Figure \ref{fig:moonsReLUOutput}. 
+\\\\
+We claim that this effect is a combination of both small width and poor initialization. Since the intialization is random the mapping of the points of the dataset to the lower sets of the units is arbitrary (Equation \ref{eq:lowerPartOfUnit}), it is possible that units of successive layers incrementally map the entire dataset to zero. This is due because the initialization disregards the actual geometry of the data. 
+\\\\
+As the chances of mapping the entire dataset to zero increase with the number of truncations that it has to go through, this problem worsens with the depth of the network. Additionally, notice how by adding units to the layers (increasing their width) we are only increasing the chances to get a good initialization which solves this problem.
+\\\\
+% Introduce ReLU + converges to few points
+\ReLUBN is able to force non-zero activations in intermediate layers, see Figures \ref{fig:moonsReLUBN251} and \ref{fig:moonsReLUBN251}, but it is not sufficient to solve the problem, see Figure \ref{fig:moonsReLUBNOutput})). 
+\\\\
+% ReLU-BN cannot change the affine transform of the units/hyperplanes
+ Recall that Batch Normalization standarizes the data and performs an affine transformation on the pre-activations of the units of the data, to apply the truncation to zero afterwards. This means that it can guarantee non-zero activations (provided the parameters of the affine transform are \emph{correct}) but it cannot fix the poorly placed hyperplanes of the units behind. Additionally, it still will suffer from the same problem of sending incrementally the dataset to zero across the layers in the same manner than \ReLU.
+ \\\\
+ % The combiantion of bad hyperplanes and sending the points to zero toghether groups the data in points
+ 
+In the other hand, we have that all of the \ReLU networks equipped with a separation constraint are able to solve the problem (Figures \ref{fig:moonsUnit} or \ref{fig:moonsLayerwise}) or at least approximate it with certain degree of success (Figures \ref{fig:moonsUnitwiseInput} and \ref{fig:moonsPoinwise}).
+All of them separate the dataset in an \emph{intuitive} manner (Figures \ref{fig:moonsUnitwiseOutput}, \ref{fig:moonsPointwiseOutput}. \ref{fig:moonsLayerwiseOutput} and \ref{fig:moonsUnitpointwiseOutput}), and their internal representations not only are not trivial like \ReLUBN but also preserve geometrical structure like connectivity or shape (Figures \ref{fig:moonsLayerwise251}, \ref{fig:moonsUnitwise251}, \ref{fig:moonsPointwise251} or \ref{fig:moonsUnitpointwise252}), showing no trace of topological mixing. Additionally, the 4th layers show a much more structured representation with some cases where the solution is already found (Figures \ref{fig:moonsUnitwise42}, \ref{fig:moonsUnitpointwise42}, \ref{fig:moonsLayerwise42} or \ref{fig:moonsPointwise42}). This proves that the gradient of the main loss is backpropagated to the input, unlike \ReLU and \ReLUBN (Figures \ref{fig:moonsReLU41}, \ref{fig:moonsReLU41}, \ref{fig:moonsReLUBN41}, \ref{fig:moonsReLUBN42}).
 
-We train a network described in section \ref{sec:experiments} using a batch size equal to the entire training set ($85$), learning rate equal to $0.01$ and the Adam optimizer \cite{adam} for each of the versions of the constraint using a scalarization parameter $\lambda \in \{1, 0.0001\}$, against \ReLU and \ReLUBN trained with the same parameters. We show the results in Figures \ref{fig:moonsReLU} for \ReLU,\ref{fig:moonsReLUBN} for \ReLUBN,\ref{fig:moonsLayerwise} for \SepLayer,\ref{fig:moonsUnitwise} for \SepUnit,\ref{fig:moonsPointwise} for \SepPoint and \ref{fig:moonsUnitpointwise} for \SepUnitPoint. 
-
-The first column shows the data space with the partitions performed by the first layer in the native space. The blue lines show the separating plane of each unit whereas the gray zone accounts for the zero area. Next to it, we show the 4th, 25th and Feature layers in pairs (one plot for the first and second and another for the third and fourth coordinates), to see how the data evolves through the network. Finally, the last column shows the output surface of the network in the original data space. 
-
-We find that \ReLU and \ReLUBN fail, whereas \SepLayer and \SepUnitPoint solve the problem perfectly. \SepUnit and \SepPoint achieve suboptimal solutions. \SepLayer class separation seems to be more \emph{intuitive} than \SepUnitPoint, probably explained by the latter increased non-linearity. \SepUnit struggles to solve the problem generating an incomplete separation boundary whereas \SepPoint is too linear-like.
 
 \begin{figure*}
   \centering
   \parbox{\textwidth}{
     \parbox{.195\textwidth}{%
-      \subcaptionbox{Input layer\label{eq:}}{\includegraphics[width=\hsize]{img/toy/relu/conv2d_1-0.pdf}}
+      \subcaptionbox{Input layer\label{fig:moonsReLUInput}}{\includegraphics[width=\hsize]{img/toy/relu/conv2d_1-0.pdf}}
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{4th layer}{\includegraphics[width=\hsize]{img/toy/relu/conv2d_4-0.pdf}}
+      \subcaptionbox{4th layer\label{fig:moonsReLU41}}{\includegraphics[width=\hsize]{img/toy/relu/conv2d_4-0.pdf}}
     %   \vskip1em
-      \subcaptionbox{4th layer}{\includegraphics[width=\hsize]{img/toy/relu/conv2d_4-2.pdf}} 
+      \subcaptionbox{4th layer\label{fig:moonsReLU42}}{\includegraphics[width=\hsize]{img/toy/relu/conv2d_4-2.pdf}}
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{25th layer}{\includegraphics[width=\hsize]{img/toy/relu/conv2d_25-0.pdf}}
+      \subcaptionbox{25th layer\label{fig:moonsReLU251}}{\includegraphics[width=\hsize]{img/toy/relu/conv2d_25-0.pdf}}
     %   \vskip1em
-      \subcaptionbox{25th layer}{\includegraphics[width=\hsize]{img/toy/relu/conv2d_25-2.pdf}} 
+      \subcaptionbox{25th layer\label{fig:moonsReLU252}}{\includegraphics[width=\hsize]{img/toy/relu/conv2d_25-2.pdf}}
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{Feature layer}{\includegraphics[width=\hsize]{img/toy/relu/dense_1-0.pdf}}
+      \subcaptionbox{Feature layer\label{fig:moonsReLUFeature1}}{\includegraphics[width=\hsize]{img/toy/relu/dense_1-0.pdf}}
     %   \vskip1em
-      \subcaptionbox{Feature layer}{\includegraphics[width=\hsize]{img/toy/relu/dense_1-2.pdf}} 
+      \subcaptionbox{Feature layer\label{fig:moonsReLUFeature2}}{\includegraphics[width=\hsize]{img/toy/relu/dense_1-2.pdf}}
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{Output}{\includegraphics[width=\hsize]{img/toy/relu/output.pdf}}
+      \subcaptionbox{Output\label{fig:moonsReLUOutput}}{\includegraphics[width=\hsize]{img/toy/relu/output.pdf}}
     }
   }
-  \caption{ReLU}
+  \caption{Data transformed across a 50x4 \ReLU classification network. Notice how the the dataset is progressively mapped to zero as it traverses the network. This renders the output layer unable to solve the problem.}
     \label{fig:moonsReLU}
 \end{figure*}
 
-
-Notice how the gradient has changed the separation performed by \ReLU in Figure \ref{fig:moonsReLU} at the input layer (a), but it fails to find a proper representation of use for the upper layers ((b), (c), (d)). The network shrinks the points to zero as they go across the network, to the point where in the 25th layer the entire dataset is in zero. This leads to the total failure to output anything useful (j), which in turn will make impossible to get gradient to overcome the situation. We say that the network is \emph{dead}. We argue that this is because the original placement of the hyperplanes in the layer by the initialization sends to zero a subset of the dataset at a time, so after a number of layers the entire dataset is zero. We undestand that with this all \emph{topological structure} of the network is lost. We relate this phenomena with the lack of smoothness over the transition across layers causing lack of \emph{intuitive} separation but taken to the extreme, described in \cite{hauserAsok}.
-
 \begin{figure*}
   \centering
   \parbox{\textwidth}{
     \parbox{.195\textwidth}{%
-      \subcaptionbox{Input layer}{\includegraphics[width=\hsize]{img/toy/relu-bn/conv2d_1-0.pdf}}
+      \subcaptionbox{Input layer\label{fig:moonsReLUBNInput}}{\includegraphics[width=\hsize]{img/toy/relu-bn/conv2d_1-0.pdf}}
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{4th layer}{\includegraphics[width=\hsize]{img/toy/relu-bn/conv2d_4-0.pdf}}
+      \subcaptionbox{4th layer\label{fig:moonsReLUBN41}}{\includegraphics[width=\hsize]{img/toy/relu-bn/conv2d_4-0.pdf}}
     %   \vskip1em
-      \subcaptionbox{4th layer}{\includegraphics[width=\hsize]{img/toy/relu-bn/conv2d_4-2.pdf}}
+      \subcaptionbox{4th layer\label{fig:moonsReLUBN42}}{\includegraphics[width=\hsize]{img/toy/relu-bn/conv2d_4-2.pdf}}
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{25th layer}{\includegraphics[width=\hsize]{img/toy/relu-bn/conv2d_25-0.pdf}}
+      \subcaptionbox{25th layer\label{fig:moonsReLUBN251}}{\includegraphics[width=\hsize]{img/toy/relu-bn/conv2d_25-0.pdf}}
     %   \vskip1em
-      \subcaptionbox{25th layer}{\includegraphics[width=\hsize]{img/toy/relu-bn/conv2d_25-2.pdf}} 
+      \subcaptionbox{25th layer\label{fig:moonsReLUBN252}}{\includegraphics[width=\hsize]{img/toy/relu-bn/conv2d_25-2.pdf}} 
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{}{\includegraphics[width=\hsize]{img/toy/relu-bn/dense_1-0.pdf}}
+      \subcaptionbox{Feature layer\label{fig:moonsReLUBNFeature1}}{\includegraphics[width=\hsize]{img/toy/relu-bn/dense_1-0.pdf}}
     %   \vskip1em
-      \subcaptionbox{}{\includegraphics[width=\hsize]{img/toy/relu-bn/dense_1-2.pdf}} 
+      \subcaptionbox{Feature layer\label{fig:moonsReLUBNFeature2}}{\includegraphics[width=\hsize]{img/toy/relu-bn/dense_1-2.pdf}} 
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{Output}{\includegraphics[width=\hsize]{img/toy/relu-bn/output.pdf}}
+      \subcaptionbox{Output\label{fig:moonsReLUBNOutput}}{\includegraphics[width=\hsize]{img/toy/relu-bn/output.pdf}}
     }
   }
-  \caption{\ReLUBN}
+  \caption{Data transformed across a 50x4 \ReLUBN network. As the gradient cannot be backpropagated across the \ReLU, the non-trivial activations generated by Batch Normalization are based on the arbitrary position of the hyperplanes after intialization rather the actual topology of the dataset. This results in \emph{topological mixing} of the dataset across the layers, resulting in mapping the entire dataset to four points in the feature layer. Therefore, the representational capability of the network is hindered to such extent that the resulting output, although non-trivial, is totally arbitrary.}
     \label{fig:moonsReLUBN}
 \end{figure*}
 
-\ReLUBN fares a bit better since it is able to pull the data out of zero, as we can see in the upper layers ((d), (e), (f), (g)), yet it is still unable to preserve the \emph{topological structure} like \ReLU, which ultimately leads to \emph{topologically mixing} \cite{hirsch2012differential}, in a fashion similar to the \emph{baker's map}. This generates very strange outputs which we can see in (h) whose gradients fail to provide directions to the lower\footnote{We follow an strict platonic view here where abstraction lies above concretion, thus lower layers lie closer to the input and higher layer to the output.} layers to fix the topological structure of the network. 
+
+
+
 
 \begin{figure*}
   \centering
   \parbox{\textwidth}{
     \parbox{.195\textwidth}{%
-      \subcaptionbox{Input layer}{\includegraphics[width=\hsize]{img/toy/layerwise/conv2d_1-0.pdf}}
+      \subcaptionbox{Input layer\label{fig:moonsLayerwiseInput}}{\includegraphics[width=\hsize]{img/toy/layerwise/conv2d_1-0.pdf}}
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{4th layer}{\includegraphics[width=\hsize]{img/toy/layerwise/conv2d_4-0.pdf}}
+      \subcaptionbox{4th layer\label{fig:moonsLayerwise41}}{\includegraphics[width=\hsize]{img/toy/layerwise/conv2d_4-0.pdf}}
     %   \vskip1em
-      \subcaptionbox{4th layer}{\includegraphics[width=\hsize]{img/toy/layerwise/conv2d_4-2.pdf}} 
+      \subcaptionbox{4th layer\label{fig:moonsLayerwise42}}{\includegraphics[width=\hsize]{img/toy/layerwise/conv2d_4-2.pdf}} 
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{25th layer}{\includegraphics[width=\hsize]{img/toy/layerwise/conv2d_25-0.pdf}}
+      \subcaptionbox{25th layer\label{fig:moonsLayerwise251}}{\includegraphics[width=\hsize]{img/toy/layerwise/conv2d_25-0.pdf}}
     %   \vskip1em
-      \subcaptionbox{25th layer}{\includegraphics[width=\hsize]{img/toy/layerwise/conv2d_25-2.pdf}} 
+      \subcaptionbox{25th layer\label{fig:moonsLayerwise251}}{\includegraphics[width=\hsize]{img/toy/layerwise/conv2d_25-2.pdf}} 
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{Feature layer}{\includegraphics[width=\hsize]{img/toy/layerwise/dense_1-0.pdf}}
+      \subcaptionbox{Feature layer\label{fig:moonsLayerwiseFeature1}}{\includegraphics[width=\hsize]{img/toy/layerwise/dense_1-0.pdf}}
     %   \vskip1em
-      \subcaptionbox{Feature layer}{\includegraphics[width=\hsize]{img/toy/layerwise/dense_1-2.pdf}} 
+      \subcaptionbox{Feature layer\label{fig:moonsLayerwiseFeature2}}{\includegraphics[width=\hsize]{img/toy/layerwise/dense_1-2.pdf}} 
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{Output}{\includegraphics[width=\hsize]{img/toy/layerwise/output.pdf}}
+      \subcaptionbox{Output\label{fig:moonsLayerwiseOutput}}{\includegraphics[width=\hsize]{img/toy/layerwise/output.pdf}}
     }
   }
     \caption{\SepLayer}
@@ -144,36 +174,36 @@ Notice how the gradient has changed the separation performed by \ReLU in Figure 
 \end{figure*}
 
 
-In the other hand, our relaxed version of our proposal \SepLayer, see Figure \ref{fig:moonsLayerwise}, is able to solve the problem (h). We find how is able to propagate the information needed for the lower layers to perform the separation, so we can see at (k) how the separating planes are much better placed, so by the bottom layers (c) the problem is already solved and the rest of layers simply forward upwards ((d), (e)). Since our formulation \SepLayer is a relaxed version of \SepUnit we allow are redundant and dead units. Notice how the entire space is colored in different shades of gray, showing how at (d) least one unit is effectively operating in linear mode, thus proving how in certain situations affine units might be useful by forwarding information into deeper layers. 
+
 
 \begin{figure*}
   \centering
      % Unitwise
   \parbox{\textwidth}{
     \parbox{.195\textwidth}{%
-      \subcaptionbox{Input layer}{\includegraphics[width=\hsize]{img/toy/unitwise/conv2d_1-0.pdf}}
+      \subcaptionbox{Input layer\label{fig:moonsUnitwiseInput}}{\includegraphics[width=\hsize]{img/toy/unitwise/conv2d_1-0.pdf}}
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{4th layer}{\includegraphics[width=\hsize]{img/toy/unitwise/conv2d_4-0.pdf}}
+      \subcaptionbox{4th layer\label{fig:moonsUnitwise41}}{\includegraphics[width=\hsize]{img/toy/unitwise/conv2d_4-0.pdf}}
     %   \vskip1em
-      \subcaptionbox{4th layer}{\includegraphics[width=\hsize]{img/toy/unitwise/conv2d_4-2.pdf}} 
+      \subcaptionbox{4th layer\label{fig:moonsUnitwise42}}{\includegraphics[width=\hsize]{img/toy/unitwise/conv2d_4-2.pdf}}
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{25th layer}{\includegraphics[width=\hsize]{img/toy/unitwise/conv2d_25-0.pdf}}
+      \subcaptionbox{25th layer\label{fig:moonsUnitwise251}}{\includegraphics[width=\hsize]{img/toy/unitwise/conv2d_25-0.pdf}}
     %   \vskip1em
-      \subcaptionbox{25th layer}{\includegraphics[width=\hsize]{img/toy/unitwise/conv2d_25-2.pdf}} 
+      \subcaptionbox{25th layer\label{fig:moonsUnitwise252}}{\includegraphics[width=\hsize]{img/toy/unitwise/conv2d_25-2.pdf}}
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{Feature layer}{\includegraphics[width=\hsize]{img/toy/unitwise/dense_1-0.pdf}}
+      \subcaptionbox{Feature layer\label{fig:moonsUnitwiseFeature1}}{\includegraphics[width=\hsize]{img/toy/unitwise/dense_1-0.pdf}}
     %   \vskip1em
-      \subcaptionbox{Feature layer}{\includegraphics[width=\hsize]{img/toy/unitwise/dense_1-2.pdf}} 
+      \subcaptionbox{Feature layer\label{fig:moonsUnitwiseFeature2}}{\includegraphics[width=\hsize]{img/toy/unitwise/dense_1-2.pdf}}
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{Output}{\includegraphics[width=\hsize]{img/toy/unitwise/output.pdf}}
+      \subcaptionbox{Output\label{fig:moonsUnitwiseOutput}}{\includegraphics[width=\hsize]{img/toy/unitwise/output.pdf}}
     }
   }
   \caption{\SepUnit}
@@ -181,71 +211,69 @@ In the other hand, our relaxed version of our proposal \SepLayer, see Figure \re
 \end{figure*}
 
 
-Figure \ref{fig:moonsUnitwise} presents the results of \SepUnit. We find that the solution achieved is suboptimal, for which we blame on the excessive non-linearity induced by the constraint, preventing to forward solutions found in the lower layers to the output or allowing points with no activation, as we explained in \ref{eq:unitFail}. However, the boundary found is still quite \emph{intuitive}, in terms of \cite{hauserAsok}. Notice how the feature layer \ref{fig:moonsUnitwise}(f,g) is much more polarized than \SepLayer \ref{fig:moonsLayerwise}(f,g), and similar to \ReLUBN \ref{fig:moonsReLUBN}(f,g), although the representation at layer 25 (d,e) is richer and the output is much better.
 
 \begin{figure*}
   \centering
   %Pointwise
   \parbox{\textwidth}{
     \parbox{.195\textwidth}{%
-      \subcaptionbox{Input layer}{\includegraphics[width=\hsize]{img/toy/pointwise/conv2d_1-0.pdf}}
+      \subcaptionbox{Input layer\label{fig:moonsPointwiseInput}}{\includegraphics[width=\hsize]{img/toy/pointwise/conv2d_1-0.pdf}}
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{4th layer}{\includegraphics[width=\hsize]{img/toy/pointwise/conv2d_4-0.pdf}}
+      \subcaptionbox{4th layer\label{fig:moonsPointwise41}}{\includegraphics[width=\hsize]{img/toy/pointwise/conv2d_4-0.pdf}}
     %   \vskip1em
-      \subcaptionbox{4th layer}{\includegraphics[width=\hsize]{img/toy/pointwise/conv2d_4-2.pdf}} 
+      \subcaptionbox{4th layer\label{fig:moonsPointwise42}}{\includegraphics[width=\hsize]{img/toy/pointwise/conv2d_4-2.pdf}} 
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{25th layer}{\includegraphics[width=\hsize]{img/toy/pointwise/conv2d_25-0.pdf}}
+      \subcaptionbox{25th layer\label{fig:moonsPointwise251}}{\includegraphics[width=\hsize]{img/toy/pointwise/conv2d_25-0.pdf}}
     %   \vskip1em
-      \subcaptionbox{25th layer}{\includegraphics[width=\hsize]{img/toy/pointwise/conv2d_25-2.pdf}} 
+      \subcaptionbox{25th layer\label{fig:moonsPointwise252}}{\includegraphics[width=\hsize]{img/toy/pointwise/conv2d_25-2.pdf}} 
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{}{\includegraphics[width=\hsize]{img/toy/pointwise/dense_1-0.pdf}}
+      \subcaptionbox{\label{fig:moonsPointwiseFeature1}}{\includegraphics[width=\hsize]{img/toy/pointwise/dense_1-0.pdf}}
     %   \vskip1em
-      \subcaptionbox{}{\includegraphics[width=\hsize]{img/toy/pointwise/dense_1-2.pdf}} 
+      \subcaptionbox{\label{fig:moonsPointwiseFeature2}}{\includegraphics[width=\hsize]{img/toy/pointwise/dense_1-2.pdf}} 
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{Output}{\includegraphics[width=\hsize]{img/toy/pointwise/output.pdf}}
+      \subcaptionbox{Output\label{fig:moonsPointwiseOutput}}{\includegraphics[width=\hsize]{img/toy/pointwise/output.pdf}}
     }
   }
   \caption{\SepPoint}
     \label{fig:moonsPointwise}
 \end{figure*}
 
-The constraint \SepPoint is shown at Figure \ref{fig:moonsPointwise}. We see how it effectively propagates the data \emph{topological structure} up to the output of the network ((e), (d), (f), (g)), but as the only requirement that for each point at least one unit is activated and another not this can be fulfilled with an affine unit, so the solution remains almost linear (h). 
 
 \begin{figure*}
   \centering
    \parbox{\textwidth}{
     \parbox{.195\textwidth}{%
-      \subcaptionbox{Input layer}{\includegraphics[width=\hsize]{img/toy/unitpointwise/conv2d_1-0.pdf}}
+      \subcaptionbox{Input layer\label{fig:moonsUnitpointwiseInput}}{\includegraphics[width=\hsize]{img/toy/unitpointwise/conv2d_1-0.pdf}}
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{4th layer}{\includegraphics[width=\hsize]{img/toy/unitpointwise/conv2d_4-0.pdf}}
+      \subcaptionbox{4th layer\label{fig:moonsUnitpointwise41}}{\includegraphics[width=\hsize]{img/toy/unitpointwise/conv2d_4-0.pdf}}
     %   \vskip1em
-      \subcaptionbox{4th layer}{\includegraphics[width=\hsize]{img/toy/unitpointwise/conv2d_4-2.pdf}} 
+      \subcaptionbox{4th layer\label{fig:moonsUnitpointwise42}}{\includegraphics[width=\hsize]{img/toy/unitpointwise/conv2d_4-2.pdf}} 
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{25th layer}{\includegraphics[width=\hsize]{img/toy/unitpointwise/conv2d_25-0.pdf}}
+      \subcaptionbox{25th layer\label{fig:moonsUnitpointwise251}}{\includegraphics[width=\hsize]{img/toy/unitpointwise/conv2d_25-0.pdf}}
     %   \vskip1em
-      \subcaptionbox{25th layer}{\includegraphics[width=\hsize]{img/toy/unitpointwise/conv2d_25-2.pdf}} 
+      \subcaptionbox{25th layer\label{fig:moonsUnitpointwise252}}{\includegraphics[width=\hsize]{img/toy/unitpointwise/conv2d_25-2.pdf}} 
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{Feature layer}{\includegraphics[width=\hsize]{img/toy/unitpointwise/dense_1-0.pdf}}
+      \subcaptionbox{Feature layer\label{fig:moonsUnitpointwiseFeature1}}{\includegraphics[width=\hsize]{img/toy/unitpointwise/dense_1-0.pdf}}
     %   \vskip1em
-      \subcaptionbox{Feature layer}{\includegraphics[width=\hsize]{img/toy/unitpointwise/dense_1-2.pdf}} 
+      \subcaptionbox{Feature layer\label{fig:moonsUnitpointwiseFeature2}}{\includegraphics[width=\hsize]{img/toy/unitpointwise/dense_1-2.pdf}} 
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{Output}{\includegraphics[width=\hsize]{img/toy/unitpointwise/output.pdf}}
+      \subcaptionbox{Output\label{fig:moonsUnitpointwiseOutput}}{\includegraphics[width=\hsize]{img/toy/unitpointwise/output.pdf}}
     }
   }
 

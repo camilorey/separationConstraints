@@ -37,7 +37,7 @@ We define the \emph{upper} part of an unit  $u = u(\cdot;\vec{w},b)$ as the set 
     upper(u) = \{\vec{x}|\vec{w}\cdot\vec{x}+b>0\}
 \end{equation}
 and the \emph{lower} part of $u_j$ as the set of points for which the pre-activation of $u_j$ turns up a negative value. That is, 
-\begin{equation}
+\begin{equation}\label{eq:lowerPartOfUnit}
     lower(u) = \{\vec{x}|\vec{w}\cdot\vec{x}+b\leq 0\}
 \end{equation}
 Note that both upper and lower parts are --in the sense of linear algebra-- \emph{affine spaces} of $\Real{n}$\cite{Burges1998TutorialOnSVMForPatternRecognition,florenzano2001ConvexAnalysis}. 
