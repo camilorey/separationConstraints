@@ -56,7 +56,7 @@ for all the pairs in $\mathcal{T}$ (in the sense of equation \ref{eq:dataset}).
 \\\\
 Thus, we can define \emph{unit separability} for a given dataset $\mathcal{T}$ via $X$. More specifically, we say that a unit $u:\Real{n}\rightarrow\mathbb{R}$ is \emph{dead} with regards to set $X$ if
 \begin{equation}\label{eq:deadUnitVersion1}
- upper(u)\cap X = \emptyset \
+ upper(u)\cap X = \emptyset 
 \end{equation}
 this means that unit $u_j$ is not activates by any point in the data set. On symmetry  we say that $u$ is \emph{affine} if it is activated by \emph{every} point in $X$. That is, 
 \begin{equation}\label{eq:affineUnit}
@@ -72,12 +72,12 @@ and $u$ is also affine in terms of the lower part of $u$ if
 \end{equation}
 While a affine unit \emph{downgrades} the unit to an redundant transform (since it can be carried out by the following unit), \emph{dead} units compromise the \emph{representative} ability of the network.
 \\\\
-While dead neurons have been traditionally accepted as a minor issue for DNN related pheoneman, we argue as well that affine units are also not devoid of caveats.
+While dead neurons have been traditionally accepted as a minor issue for DNN related pheonomena, we argue as well that affine units are also not devoid of caveats.
 \\\\
 Thus, we wish to construct DNN in which the units \emph{separate} through set $X$ in the sense that they are neither \emph{dead}, nor \emph{affine}. In terms of the sets defined so far, we can do this in two (equivalent) ways:
 \begin{equation}\label{eq:separabilityDefinition}
 \begin{array}{c}
-    \emptyset \neq upper(u)\cap X \neq X\\
-    \emptyset \neq lower(u)\cap X \neq X\\
+    R_1(u) = \emptyset \neq upper(u)\cap X \neq X\\
+    R_2(u) = \emptyset \neq lower(u)\cap X \neq X\\
 \end{array}
 \end{equation}

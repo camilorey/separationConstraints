@@ -34,41 +34,39 @@ As a dataset, we choose a small version of the \moons dataset, sampling $100$ po
 \\\\
 We chose the \moons for its \emph{simplicity} in terms of point distribution (two classes parametrically created, see for example Figure \ref{fig:zerosInput3000} on top). Also, the separating functions $F$ created can be easily visualized in a surface map as showcased in Figure \ref{fig:zerosInput3000} (recall equation \ref{eq:network}). In this sense, it is easy to tell whether a classification is \emph{well done} (graphically) and we can relate it to accuracy values. The \moons dataset promotes intuition beyond scores or metrics.  
 
-\subsection{On Classification}\label{subsec:classification}
-In this experiment we use the binary cross-entropy as the main loss, and connect it to the constraint loss with $\lambda \in \{0.0001, 1\}$ (recall Equation  \ref{eq:marginOptimizationProblem}).
-\\\\
-% Performance
-\ReLU nor \ReLUBN are able to solve the problem (See Figure \ref{fig:moonsReLUOutput} for \ReLU and  \ref{fig:moonsReLUBNOutput} for \ReLUBN). In terms of accuracy, \ReLU reaches a trivial accuracy of $0.51$ while \ReLUBN reaches $0.60$. 
-\\\\
-% Data forwarding ReLU
-Notice how in the case of \ReLU although in the lower layers the representation is non-trivial, see Figure \ref{fig:moonsReLU42}, it fails to forward the data upwards, see Figures \ref{fig:moonsReLU251} and \ref{fig:moonsReLU252}. The problem worsen across the layers, until eventually the entire dataset is mapped to zero. This renders the output layer unable to solve the problem, see Figures
-\\\\
-% Data forwading ReLU-BN
-The case of \ReLUBN the dataset is mapped to few points instead. We understand that this is because the structure of the unit hyperplanes are unchanged with respect \ReLU, only that the Batch Normalization will move some of the points from zero through standarization. \ReLUBN will simply map those points to values different from zero through standarization, recall Figures \ref{fig:moonsReLUBNFeature1} and \ref{fig:moonsReLUFeature2}. 
- \\\\
- Since those points have gone through a truncation in order to pack together, their gradient will not be backpropagated across it to lower layers, resulting in modifying only $\gamma$ and $\beta$, which explains the poor placement of the planes in Figures \ref{fig:moonsReLUBNFeature1} and \ref{fig:moonsReLUBNFeature2}.
- \\\\
- Our intuition is that this phenomenon is a case of\emph{topological mixing}\cite{munkres2000Topology} similar to the \emph{tent map}. 
-\\\\
-\\\\
-% If the feature layer is dead the network is dead
-This renders the feature layer (50th layer) unable to perform any separation, see Figures \ref{fig:moonsReLUFeature1} and \ref{fig:moonsReLUFeature2}, which ultimately results in failing to solve the problem, see Figure \ref{fig:moonsReLUOutput}. 
-\\\\
-We claim that this effect is a combination of both small width and poor initialization. Since the intialization is random the mapping of the points of the dataset to the lower sets of the units is arbitrary (Equation \ref{eq:lowerPartOfUnit}), it is possible that units of successive layers incrementally map the entire dataset to zero. This is due because the initialization disregards the actual geometry of the data. 
-\\\\
-As the chances of mapping the entire dataset to zero increase with the number of truncations that it has to go through, this problem worsens with the depth of the network. Additionally, notice how by adding units to the layers (increasing their width) we are only increasing the chances to get a good initialization which solves this problem.
-\\\\
-% Introduce ReLU + converges to few points
-\ReLUBN is able to force non-zero activations in intermediate layers, see Figures \ref{fig:moonsReLUBN251} and \ref{fig:moonsReLUBN251}, but it is not sufficient to solve the problem, see Figure \ref{fig:moonsReLUBNOutput})). 
-\\\\
-% ReLU-BN cannot change the affine transform of the units/hyperplanes
- Recall that Batch Normalization standarizes the data and performs an affine transformation on the pre-activations of the units of the data, to apply the truncation to zero afterwards. This means that it can guarantee non-zero activations (provided the parameters of the affine transform are \emph{correct}) but it cannot fix the poorly placed hyperplanes of the units behind. Additionally, it still will suffer from the same problem of sending incrementally the dataset to zero across the layers in the same manner than \ReLU.
- \\\\
- % The combiantion of bad hyperplanes and sending the points to zero toghether groups the data in points
- 
-In the other hand, we have that all of the \ReLU networks equipped with a separation constraint are able to solve the problem (Figures \ref{fig:moonsUnit} or \ref{fig:moonsLayerwise}) or at least approximate it with certain degree of success (Figures \ref{fig:moonsUnitwiseInput} and \ref{fig:moonsPoinwise}).
-All of them separate the dataset in an \emph{intuitive} manner (Figures \ref{fig:moonsUnitwiseOutput}, \ref{fig:moonsPointwiseOutput}. \ref{fig:moonsLayerwiseOutput} and \ref{fig:moonsUnitpointwiseOutput}), and their internal representations not only are not trivial like \ReLUBN but also preserve geometrical structure like connectivity or shape (Figures \ref{fig:moonsLayerwise251}, \ref{fig:moonsUnitwise251}, \ref{fig:moonsPointwise251} or \ref{fig:moonsUnitpointwise252}), showing no trace of topological mixing. Additionally, the 4th layers show a much more structured representation with some cases where the solution is already found (Figures \ref{fig:moonsUnitwise42}, \ref{fig:moonsUnitpointwise42}, \ref{fig:moonsLayerwise42} or \ref{fig:moonsPointwise42}). This proves that the gradient of the main loss is backpropagated to the input, unlike \ReLU and \ReLUBN (Figures \ref{fig:moonsReLU41}, \ref{fig:moonsReLU41}, \ref{fig:moonsReLUBN41}, \ref{fig:moonsReLUBN42}).
+% Beginning of the experimental section.
+\subsection{Effect of the separation on the internal representations}\label{subsec:internalRepresentation}
 
+In terms of accuracy \ReLU reaches a trivial accuracy of $0.51$ while \ReLUBN reaches $0.60$, both architectures fail to solve the problem. When comparing the results presented in Figures \ref{fig:moonsReLU} and \ref{fig:moonsReLUBN}, we find that at the fourth layer \ReLU has collapsed the points of the dataset over a line (parts \ref{fig:moonsReLU41} and \ref{fig:moonsReLU42}), while \ReLUBN still manages to warp the dataset. However, both methods at layer 25th have \emph{collapsed} the dataset into a small number of points (see Figures \ref{fig:moonsReLUBN251}, \ref{fig:moonsReLUBN252} for \ReLUBN and Figures \ref{fig:moonsReLU251} and \ref{fig:moonsReLU252} for \ReLU) that is then \emph{pushed} to the point zero for \ReLU (as shown in the feature layer: \ref{fig:moonsReLUFeature1} and \ref{fig:moonsReLUFeature2}), while \ReLUBN collapses to few points (Figures \ref{fig:moonsReLUBNFeature1} and \ref{fig:moonsReLUBNFeature2}). 
+\\\\
+We suggest that this collapsing is due the fact that entire portions of the data set are being mapped to the intersection of the lower sets of all the units in a layer, incrementally. Moreover, the likelihood of this collapsing (and its effect on the whole dataset) increases with depth and decreases with width (i.e. bruteforcing non trivial activations via \emph{width-increase}). 
+\\\\
+In addition, since the gradient is only back-propagated through the points lying on the upper sets of units, geometric collapse also stops learning. Notice that the standarization and the affine transformation (dependent on $\gamma$ and $\beta$) from \ReLUBN are not able to prevent sending the dataset to the lowers of the units. Thus, training thin and deep neural networks is difficult with \ReLU or \ReLUBN.
+\\\\
+On the extent of our experimentation  \ReLU networks featuring separation constraints are able to solve the problem with higher degrees of accuracy than \ReLU and \ReLUBN (see the figures in Table \ref{tab:moons}). Moreover, Figures \ref{fig:moonsUnitwiseOutput}, \ref{fig:moonsLayerwiseOutput}) \ref{fig:moonsUnitwiseOutput} and \ref{fig:moonsPointwiseOutput}), show that the separation function behaves \emph{intuitively} in the sense of Hauser \& Asok \cite{hauserAsok}. 
+\\\\ 
+The internal representations not only are non-trivial (as in \ReLUBN) but also preserve geometrical structures like shape and connectivity, as shown in Figures \ref{fig:moonsLayerwise251}, \ref{fig:moonsUnitwise251}, \ref{fig:moonsPointwise251} or \ref{fig:moonsUnitpointwise252}. Indeed, Figures \ref{fig:moonsUnitwise42}, \ref{fig:moonsUnitpointwise42}, \ref{fig:moonsLayerwise42} and \ref{fig:moonsPointwise42} showcase how at the 4th layers a much a solution is already found. This proves that the gradient of the main loss is back-propagated to the input, unlike \ReLU and \ReLUBN (Figures \ref{fig:moonsReLU41}, \ref{fig:moonsReLU41}, \ref{fig:moonsReLUBN41}, \ref{fig:moonsReLUBN42}).
+\\\\
+The constraints enforce richer representations when used without main loss (cross-entropy), see Figure \ref{fig:init}. In the case of \SepLayer the dataset is mapped into a line (Figures \ref{fig:layerwiseInit501} and \ref{fig:layerwiseInit502}) , whereas the representation reached by \SepUnitPoint is more complex, yet preserves connectivity. Furthermore, both avoid mapping the entire dataset to few values as observed with \ReLU (Figures \ref{fig:reluBNInit501} and \ref{fig:reluBNInit502}) and \ReLUBN (Figures \ref{fig:reluInit501} and \ref{fig:reluInit502}). 
+\\\\
+% Differences among constraints
+The only exception is \SepUnit that apparently solves the problem at layer 25th on Figures \ref{fig:moonsUnitwise251} and \ref{fig:moonsUnitwise252}, yet collapses the dataset in two points at the feature layer (Figures \ref{fig:moonsUnitwiseFeature1} and \ref{fig:moonsUnitwiseFeature1}). Our intuition is  is that, although \SepUnit prevents dead/affine units, it cannot prevent points from falling into the intersection lower set of the units of a layer, construeing a \emph{dead point}). The gradient at dead points will be zero, and can only be recovered by another non-dead point moving a unit so that the dead point, \emph{revives}, when being brought back into the upper set of any unit. The \SepPoint separation constraint was designed precisely to prevent the presence of dead points. However, \SepPoint allows affine and dead units (as shown in Figures \ref{fig:moonsPointwise251} and \ref{fig:moonsPointwise252}), so the the decision function reached becomes \emph{simple} (see Figure \ref{fig:moonsPointwiseOutput}). 
+\\\\
+Therefore, if we combine both \SepUnit and \SepPoint we should have best of both worlds. Figure \ref{fig:moonsUnitPointwise}, shows how \SepUnitPoint is able to separate both classes perfectly (recall the $0.93$ in accuracy from Table \ref{tab:moons}). Furthermore \SepUnitPoint, produces a feature layer that does not concentrate the dataset in two points like \SepUnit, or concentrates the dataset linearly like \SepPoint. In this sense, we argue that  \SepLayer separates classes in the \texttt{MOONS} quite well, although it is a relaxation of \SepUnitPoint. We think this is due to the fact it allows affine units, that are particularly good at forwarding internal representations, as we will detail in the next subsection.
+
+\subsection{The Role of affine, dead and repeated units}\label{sec:roleofdead}
+
+Despite the fact that we intended to avoid dead and affine neurons with our geometrical formulation (recall the predicate $R_1(u) \wedge R_2(u)$ defined on Equation \ref{eq:separabilityDefinition}) the different constraints differ in practice. While $R_1(u) \wedge R_2(u)$ is valid within \SepUnit and extends to layers, \SepLayer and \SepPoint  allow at least one unit to be affine (recall Equation \ref{eq:affineUnit}) while allowing at least another to be dead (recall Equation \ref{eq:deadNeuronVersion2}), invalidating $R_1(u) \wedge R_2(u)$, but holding $R_1(\layer) \wedge R_2(\layer)$. 
+\\\\
+In this sense, neither \emph{repeated} (producing the same upper set), affine nor dead units are \emph{harmful} for network performance, beyond burdening networks with additional non used or redundant parameters. They seem ubiquitous in the extent of our experimentation as Figures \ref{fig:moonsLayerwise}, \ref{fig:moonsPointwise} and \ref{fig:moonsUnitPointwise} testify (see the axis-aligned or diagonally expanding intermediate representations of the dataset). Further inquiry is needed to understand how dead, affine and repeated neurons coalesce in solving the problem. In addition, our experimentation suggests that the  the distribution of dead, affine and repeated units varies according to constraint type (in the extent of our experimentation). 
+\\\\
+Indeed, Figure \ref{fig:moonsLayerwise} for the \SepLayer constraint type showcases a feature layer (divisions \ref{fig:moonsLayerwiseFeature1} and \ref{fig:moonsLayerwiseFeature1}) with two dead units and two repeated. Meanwhile Figure \ref{fig:moonsUnitwise} at the 24th layer (divisions \ref{fig:moonsUnitwise251} and \ref{fig:moonsUnitwise252}), depicts repeated neurons (organized pairwise) with no affine nor dead units. 
+
+\subsection{Relation between separation constraints and main loss}\label{subsec:sepvsxent}
+
+The use of the separation constraints enables back-propagation, and thus cross-entropy minimization. Particularly, we wish to turn our attention to Figure \ref{fig:peaks}. According to it, the training phase begins minimizing the constraint loss until a certain level is reached (approximately $0.21$ circa epoch 750), allowing the main loss to be optimized up to 80 to 100\% accuracy (recall the results in Table \ref{tab:moons}). However, using an additional loss (i.e. from the separation constraints) induces more \emph{aggresive} transient states (e.g. instabilities) during training (approximately around epochs 400, 1500 and 1750). 
+\\\\
+We conjecture that these instabilities can be associated to a progressive drop on the separation loss (as shown in Figure \ref{fig:peaks}) that is then followed by a peak on the cross-entropy. We argue that this is due a favorable network configuration (i.e. hyperplane positioning) that is achieved gradually by the separation constraints, in such a way that back-propagation of the gradient from the cross-entropy works favorably for the classification. In the limited scope of our experimentation, each of these spikes is followed by an increase on the accuracy. However, anecdotal evidence suggests that if $\lambda$ is too high, it can hamper the classification training in favor of hyperplane configuration, \emph{overriding} the main cross-entropy.
 
 \begin{figure*}
   \centering
@@ -132,48 +130,9 @@ All of them separate the dataset in an \emph{intuitive} manner (Figures \ref{fig
       \subcaptionbox{Output\label{fig:moonsReLUBNOutput}}{\includegraphics[width=\hsize]{img/toy/relu-bn/output.pdf}}
     }
   }
-  \caption{Data transformed across a 50x4 \ReLUBN network. As the gradient cannot be backpropagated across the \ReLU, the non-trivial activations generated by Batch Normalization are based on the arbitrary position of the hyperplanes after intialization rather the actual topology of the dataset. This results in \emph{topological mixing} of the dataset across the layers, resulting in mapping the entire dataset to four points in the feature layer. Therefore, the representational capability of the network is hindered to such extent that the resulting output, although non-trivial, is totally arbitrary.}
+  \caption{Data transformed across a 50x4 \ReLUBN network. The dataset is collapsed in few points at the feature layer. As the gradient cannot be backpropagated across the truncation after the affine transform of $\gamma$ and $\beta$ despite the standarization, failing in the same manner than \ReLU only that with non-zero activations. This results in \emph{topological mixing} of the datasets. Therefore, the representational capability of the network is hindered to such extent that the resulting output, although non-trivial, is totally arbitrary.}
     \label{fig:moonsReLUBN}
 \end{figure*}
-
-
-
-
-
-\begin{figure*}
-  \centering
-  \parbox{\textwidth}{
-    \parbox{.195\textwidth}{%
-      \subcaptionbox{Input layer\label{fig:moonsLayerwiseInput}}{\includegraphics[width=\hsize]{img/toy/layerwise/conv2d_1-0.pdf}}
-    }
-    % \hskip1em
-    \parbox{.195\textwidth}{%
-      \subcaptionbox{4th layer\label{fig:moonsLayerwise41}}{\includegraphics[width=\hsize]{img/toy/layerwise/conv2d_4-0.pdf}}
-    %   \vskip1em
-      \subcaptionbox{4th layer\label{fig:moonsLayerwise42}}{\includegraphics[width=\hsize]{img/toy/layerwise/conv2d_4-2.pdf}} 
-    }
-    % \hskip1em
-    \parbox{.195\textwidth}{%
-      \subcaptionbox{25th layer\label{fig:moonsLayerwise251}}{\includegraphics[width=\hsize]{img/toy/layerwise/conv2d_25-0.pdf}}
-    %   \vskip1em
-      \subcaptionbox{25th layer\label{fig:moonsLayerwise251}}{\includegraphics[width=\hsize]{img/toy/layerwise/conv2d_25-2.pdf}} 
-    }
-    % \hskip1em
-    \parbox{.195\textwidth}{%
-      \subcaptionbox{Feature layer\label{fig:moonsLayerwiseFeature1}}{\includegraphics[width=\hsize]{img/toy/layerwise/dense_1-0.pdf}}
-    %   \vskip1em
-      \subcaptionbox{Feature layer\label{fig:moonsLayerwiseFeature2}}{\includegraphics[width=\hsize]{img/toy/layerwise/dense_1-2.pdf}} 
-    }
-    % \hskip1em
-    \parbox{.195\textwidth}{%
-      \subcaptionbox{Output\label{fig:moonsLayerwiseOutput}}{\includegraphics[width=\hsize]{img/toy/layerwise/output.pdf}}
-    }
-  }
-    \caption{\SepLayer}
-    \label{fig:moonsLayerwise}
-\end{figure*}
-
-
 
 
 \begin{figure*}
@@ -206,7 +165,7 @@ All of them separate the dataset in an \emph{intuitive} manner (Figures \ref{fig
       \subcaptionbox{Output\label{fig:moonsUnitwiseOutput}}{\includegraphics[width=\hsize]{img/toy/unitwise/output.pdf}}
     }
   }
-  \caption{\SepUnit}
+  \caption{Data transformed across a 50x4 \SepUnit network. Notice how dead and affine units have been reduced. Despite collapsing the dataset in two points at the feature layer, the classification performed in the output layer is approximately correct. We conjecture that this is due the dead point addressed with \SepPoint.}
     \label{fig:moonsUnitwise}
 \end{figure*}
 
@@ -233,16 +192,16 @@ All of them separate the dataset in an \emph{intuitive} manner (Figures \ref{fig
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{\label{fig:moonsPointwiseFeature1}}{\includegraphics[width=\hsize]{img/toy/pointwise/dense_1-0.pdf}}
+      \subcaptionbox{Feature layer\label{fig:moonsPointwiseFeature1}}{\includegraphics[width=\hsize]{img/toy/pointwise/dense_1-0.pdf}}
     %   \vskip1em
-      \subcaptionbox{\label{fig:moonsPointwiseFeature2}}{\includegraphics[width=\hsize]{img/toy/pointwise/dense_1-2.pdf}} 
+      \subcaptionbox{Feature layer\label{fig:moonsPointwiseFeature2}}{\includegraphics[width=\hsize]{img/toy/pointwise/dense_1-2.pdf}} 
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
       \subcaptionbox{Output\label{fig:moonsPointwiseOutput}}{\includegraphics[width=\hsize]{img/toy/pointwise/output.pdf}}
     }
   }
-  \caption{\SepPoint}
+  \caption{Data transformed across a 50x4 \SepPoint network. The network displays a richer internal representation without collapsing the dataset like \SepUnit or \ReLUBN. However, plenty of dead and affine units appear since they are not penalized, causing underfitting.}
     \label{fig:moonsPointwise}
 \end{figure*}
 
@@ -277,23 +236,42 @@ All of them separate the dataset in an \emph{intuitive} manner (Figures \ref{fig
     }
   }
 
-    \caption{\SepUnitPoint}
-    \label{fig:moonsUnitpointwise}
+    \caption{Data transformed across a 50x4 \SepUnitPoint network. The network displays internal representations without collapsing the dataset like \SepPoint while retaining classification power like \SepUnit.}
+    \label{fig:moonsUnitPointwise}
 \end{figure*}
 
-Finally, combining \SepUnit with \SepPoint in \SepUnitPoint effectively separates the classes at Figure \ref{fig:moonsUnitpointwise} (h). The solution found is a bit different from \SepLayer at Figure \ref{fig:moonsLayerwise}(h). We argue that this is due the increased non-linearity of \SepUnit over \SepLayer.
-
-\subsection{The Effect of Constraint Loss}\label{subsec:effectConstraintLoss}
-
-One interesting matter is to understand which effect has the separation constraint by itself, without loss functional. Therefore, we train the same network and hyperparameters than the previous experiment  \ref{subsec:classification}. Then we optimize only the constraints without any other loss. We use \ReLU and \ReLUBN for comparison purposes. 
-
-We find that both \ReLU and \ReLUBN tend concentrate all the data whereas \SepUnitPoint and \SepLayer are able to preserve topological structure, see figure \ref{fig:init}. This explains the failure in \ref{fig:moonsReLU} and \ref{fig:moonsReLUBN}. 
-In the other hand, we find how \SepLayer connects the output with in the input by sort of linearizing the network in figures \ref{fig:layerwiseInit501} and \ref{fig:layerwiseInit501}, thus outputting something very similar to a linear classifier. This is consistent with \cite{batchnormGradientExplosion}, where the authors claim that the network performs best as the units work closest to the linear regime. 
-\SepUnitPoint output in figures \ref{fig:unitpointInit501} and \ref{fig:unitpointInit502} is less smooth than \SepLayer but still reasonable showing connectivity among the points, proof that topological structure is preserved up to some extent. Notice how the shape of the input layer is quite similar to the final solution found in Figure \ref{fig:moonsUnitpointwise}(a) when using a loss functional, but the feature layer is much more spread. 
-
-We argue that this separation induced by the constraints is responsible of the superior performance shown in \ref{subsec:classification}.
-
-This pursue of separation translates during training into the dynamics shown in figure \ref{fig:peaks}, where we can see the convergence plot for \SepUnitPoint, where the constraint loss and cross-entropy compete each other. The constraint loss pulls the weights into directions which harm cross-entropy thus lowering accuracy, but that are better on the long run, so after fulfilling separation, when cross-entropy converges, the network achieves better accuracy than before the drop. Nevertheless, this behaviour is unstable and sometimes the constraint loss breaks the training process after some iterations.
+\begin{figure*}
+  \centering
+  \parbox{\textwidth}{
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{Input layer\label{fig:moonsLayerwiseInput}}{\includegraphics[width=\hsize]{img/toy/layerwise/conv2d_1-0.pdf}}
+    }
+    % \hskip1em
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{4th layer\label{fig:moonsLayerwise41}}{\includegraphics[width=\hsize]{img/toy/layerwise/conv2d_4-0.pdf}}
+    %   \vskip1em
+      \subcaptionbox{4th layer\label{fig:moonsLayerwise42}}{\includegraphics[width=\hsize]{img/toy/layerwise/conv2d_4-2.pdf}} 
+    }
+    % \hskip1em
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{25th layer\label{fig:moonsLayerwise251}}{\includegraphics[width=\hsize]{img/toy/layerwise/conv2d_25-0.pdf}}
+    %   \vskip1em
+      \subcaptionbox{25th layer\label{fig:moonsLayerwise252}}{\includegraphics[width=\hsize]{img/toy/layerwise/conv2d_25-2.pdf}} 
+    }
+    % \hskip1em
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{Feature layer\label{fig:moonsLayerwiseFeature1}}{\includegraphics[width=\hsize]{img/toy/layerwise/dense_1-0.pdf}}
+    %   \vskip1em
+      \subcaptionbox{Feature layer\label{fig:moonsLayerwiseFeature2}}{\includegraphics[width=\hsize]{img/toy/layerwise/dense_1-2.pdf}} 
+    }
+    % \hskip1em
+    \parbox{.195\textwidth}{%
+      \subcaptionbox{Output\label{fig:moonsLayerwiseOutput}}{\includegraphics[width=\hsize]{img/toy/layerwise/output.pdf}}
+    }
+  }
+    \caption{Data transformed across a 50x4 \SepLayer network. Although being a relaxation of \SepUnitPoint showing an intuitive solution with several affine and dead units. Indeed, they not only do not hinder the network but forward the solution 4th layer to the output.}
+    \label{fig:moonsLayerwise}
+\end{figure*}
 
 \begin{figure*}
   \centering
@@ -314,7 +292,7 @@ This pursue of separation translates during training into the dynamics shown in 
     \begin{subfigure}[b]{0.3\textwidth}
         \includegraphics[width=\textwidth]{img/init/relu/conv2d_50-2.pdf}
         \caption{\ReLU 50th layer}
-        \label{fig:reluIniti502}
+        \label{fig:reluInit502}
     \end{subfigure}
     \\
     \begin{subfigure}[b]{0.3\textwidth}
@@ -377,7 +355,7 @@ This pursue of separation translates during training into the dynamics shown in 
         \label{fig:unitpointInit502}
     \end{subfigure}
     
-  \caption{} 
+  \caption{Data transformed across a 50x4 network with no main loss (cross-entropy) with constraints \SepLayer and \SepUnitPoint, versus \ReLU and \ReLUBN. Notice how effectively \ReLU and \ReLUBN collapse the dataset into few points whereas \SepLayer and \SepUnitPoint force the network to learn representations that preserve geometrical structure useful for back-propagation.} 
   \label{fig:init} 
 \end{figure*}
 
@@ -397,13 +375,11 @@ This pursue of separation translates during training into the dynamics shown in 
 
 
 
-\subsubsection{Zero initialization}\label{subsec:zero}
+\subsection{Zero initialization}\label{subsec:zero}
 
-We set the parameters to zero in an attempt to simplify initialization. We leave the responsibility of pulling the parameters from zero to the constraint, taking advantage of the fact of that the constraint gradient depend on the input of the units. However, we have two problems: (1) all the units in the layer will share the same gradient and will became the same and, (2) During the first iterations $\xi^+ = \xi^-$, so the gradient from the positive constraint will cancel with the negative.
-In order to \emph{break symmetry} of the layers, we use Dropout \cite{dropout}. We find that Dropout has a very strong effect, harming convergence. This is why we choose to use Annealed Dropout \cite{dropoutAnnealing}, starting with a rate of 0.5 for 500 epochs with linear decay. We address the positive and negative constraints cancelling each other by introducing a variable to balance them, see \ref{eq:definitionOfRho}. 
-See Figure \ref{fig:zeros} to see how the network evolves until finds a solution. We would like to remark that in this setup the training dynamics become particularly wild in a fashion similar to \ref{fig:peaks}, with several peaks in the constraint loss which ultimately lead to the readjustment of the planes so a solution can be found. Also, we find this process depends on the position of the hyperplanes set during the dropout annealing, introducing an stochastic behaviour that we would prefer to avoid. Finding another mechanism to \emph{break symmetry} would be interesing.
-
-
+Throughout the experimentation we set the parameters to zero in an attempt to simplify initialization (See Figure \ref{fig:zeros}). We leave the responsibility of pulling the parameters from zero to the constraint, taking advantage of the fact of that the constraint gradient depend on the input of the units. However, we have two problems: (1) all the units in the layer will share the same gradient and will became the same and, (2) During the first iterations $\xi^+ = \xi^-$, so the gradient from the positive constraint will cancel with the negative (recall Equation \ref{eq:definitionOfRho}).
+\\\\
+In order to \emph{break symmetry} of the layers, we use Dropout \cite{dropout}. We find that Dropout has a very strong effect (i.e. \emph{harmful} towards convergence of the learning process). In order to solve this, we introduced annealed Dropout \cite{dropoutAnnealing}, starting with a rate of $0.5$ for 500 epochs using linear decay. We would like to remark that zero initialization  contributes to the aggressiveness of the transient states during training, causing  several peaks in the constraint loss. We conjecture that this process depends on the position of the hyperplanes after dropout annealing. 
 
 \begin{figure*}
   \centering
@@ -411,8 +387,7 @@ See Figure \ref{fig:zeros} to see how the network evolves until finds a solution
         \includegraphics[width=\textwidth]{img/zero/3000/09-conv2d_1-0.pdf}
         \caption{Input layer}
         \label{fig:zerosInput3000}
-    \end{subfigure}
-    ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+    \end{subfigure}~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
       %(or a blank line to force the subfigure onto a new line)
     \begin{subfigure}[b]{0.5\textwidth}
         \includegraphics[width=\textwidth]{img/zero/3000/57-09-output.pdf}
@@ -424,14 +399,6 @@ See Figure \ref{fig:zeros} to see how the network evolves until finds a solution
   \caption{Zero initialization plus \SepUnitPoint and annealed dropout} 
   \label{fig:zeros} 
 \end{figure*}
-
-
-\subsection{Results concerning Accuracy}\label{subsec:accuracyResults}
-
-To gauge accuracy between \ReLU, \ReLU +  batchnorm (\ReLUBN), and our proposal we tested all variants of our constraint using the same setup as \ref{subsec:classification}. We sampled $100$ points ($85$ for training and $15$). We used a 50x4 network. As hyper-parameters, we used learning rates $\gamma \in \{0.01, 0.001, 0.0001\}$, a batch size $bs = 85$, constraint loss parameter $\lambda = 0.01$ when needed, and set the number of epochs to $T = 2000$. We used the Glorot initialization scheme \cite{Glorot10Initialization}. 
- 
-We find how any of \SepConstraint versions show significant improvements over the \ReLU and \ReLUBN baselines (which yield \emph{trivial} validation accuracies of $40$\% and $60$\%, respectively). In the other hand, we see how \SepLayer achieves perfect accuracy closely followed by \SepUnitPoint, whereas \SepUnit and \SepPoint lag a bit behind, mirroring the results from \ref{subsec:classification}. The reader can observe Table \ref{tab:moons} for further detail.
-
 
 \begin{table}[h!]
 \begin{center}

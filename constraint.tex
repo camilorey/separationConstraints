@@ -70,24 +70,15 @@ so that at a global scale we will have to add to the loss functional a term of t
 \begin{equation}\label{eq:constraintLossForUnitSeparation}
     G = \sum_{k=1}^{D}\sum_{j=1}^{m_k}\rho_{jk}\xi^{+}_{jk}+(1-\rho_{jk})\xi^{-}_{jk}
 \end{equation}
-We name this the \emph{separation by unit} formulation \SepUnit.
+We name this the \emph{separation by unit} formulation \SepUnit. Notice that this constraint does not prevent from dead points, this is points that belong to the intersection of the lower sets of the units of a layer. That is, if $u_1,u_2,\ldots,u_m$ are the units of a layer $\layer:\Real{n}\rightarrow\Real{m}$, we say that $\vec{x}\in\Real{n}$ is \emph{dead} with regards to $\layer$  if
 
-However, this formulation lacks for a simple reason. Although we are forcing the units to not to be dead or affine, several configurations are still possible which would harm the performance in a trivial way, for instance, we can set a point to have a pre-activation greater than 1 for all the units of the layer and the rest to zero. Having most of the dataset sent to zero is obviously a bad idea, see Eq. \ref{eq:unitFail}
-
-\begin{equation}\label{eq:unitFail}
-    \bordermatrix{ &u_1& u_2&\ldots &u_l\cr
-                x_1& 1 &  1  & \ldots & 1\cr
-                x_2& 0  &  0 & \ldots & 0\cr
-                x_i& \vdots & \vdots & \ddots & \vdots\cr
-                x_n& 0  &   0       &\ldots & 0} \\[15pt]
+\begin{equation}\label{eq:deadPoint}
+ \vec{x}\in \displaystyle\cap_{j=1})^n lower(u_j)
 \end{equation}
-
 
 \subsection{Point Based Separation \SepPoint}\label{subsec:sepPoint}
 
-We need to fix the trivial failure modes suffered by \SepUnit described at \ref{subsec:sepUnit}, where several points have null activation. Simultaneously, as in practice we do not use the entire dataset when under training, but rather use \emph{batches} \cite{LeCun06atutorial}, small batch size may cause inconsistencies within the training process (lack of commesurality of the batch statistics with the rest of the dataset, excessive locality of the sample might lead to lack of generalization and convergence, etc...). In our case, those issues would translate in penalizing the units by not fulfilling \SepUnit in the current batch because the point that makes them comply is in another batch.  
-\\\\
-We need to make our constraint formulation impervious to batch choice by focusing on the values that constraints take on specific points. 
+In order to avoid the presence of dead points (recall Equation \ref{eq:deadPoint}, we introduce the \emph{Point Based Separation Constraint} \SepPoint. Moreover, since in practice the entire dataset is not used for training, but \emph{batches} of it \cite{LeCun06atutorial}, a small batch size may cause inconsistencies within the training process. Under our formulation,  these issues would translate to unit penalization for not fulfilling \SepUnit on a \emph{per-batch} basis (due to the fact that the points that comply with the constraints may lie outside the batch).  We need to make our constraint formulation independent of batch choice by focusing on the values that constraints take on specific points. 
 \\\\
 That is, we will constraint the slacks $\xi^{\pm}$ to each point on the batch. That is given $\vec{x}\in X$, and $u_1,\ldots,u_m$ unit functions in a layer, we define slack variables $\xi^{-}_{xk},\xi^{+}_{xk}\geq 0$ in the context of the following constraints:
 \begin{equation}\label{eq:pointSeparationConstraint}
@@ -101,19 +92,7 @@ so that the associated term to minimize will have the following form \ref{eq:con
     G = \sum_{k=1}^{D}\rho_{k}\xi^{+}_{xk}+(1-\rho_{k})\xi^{-}_{xk}
 \end{equation}
 
-This solves the problem of \SepUnit where there were points which never/always activated. It also removes any dependence on the size of the batch, as each point receives its own. However, we remark that as this constraint does not place any restrictions to the units in regard on whether they separate their input data, the use of this constraint alone often results in solutions close to the linear form. Also, it is possible that one unit is activated for all the points and the rest are dead, as we show in eq. \ref{eq:pointFail}.
-
-\begin{equation}\label{eq:pointFail}
-    \bordermatrix{ &u_1& u_2&\ldots &u_l\cr
-                x_1& 1 &  0  & \ldots & 0\cr
-                x_2& 1  &  0 & \ldots & 0\cr
-                x_i& \vdots & \vdots & \ddots & \vdots\cr
-                x_n& 1  &   0       &\ldots & 0} \\[15pt]
-\end{equation}
-
-\subsection{Unit and Point Based Separation \SepUnitPoint}\label{subsec:sepUnitPoint}
-
-In order to overcome the problems previously exposed in \ref{subsec:sepUnit} and \ref{subsec:sepPoint}, we combine them in which we call \SepUnitPoint. With this we address both problems, linearity of \SepPoint and trivial failure of \SepUnit.
+Notice that \SepPoint does not prevent  dead units (as \SepUnit). We can combine both into \SepUnitPoint, to ensure that neither dead points nor dead units are present. 
 
 \subsection{Layer Based Separation \SepLayer}\label{subsec:sepLayer}
 
