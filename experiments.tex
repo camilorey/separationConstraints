@@ -94,7 +94,7 @@ We conjecture that these instabilities can be associated to a progressive drop o
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{Output\label{fig:moonsReLUOutput}}{\includegraphics[width=\hsize]{img/toy/relu/output.pdf}}
+      \subcaptionbox{Output\label{fig:moonsReLUOutput}}{\includegraphics[clip, trim=2.35cm 1.75cm 4.5cm 0cm,width=\hsize]{img/toy/relu/output.pdf}}
     }
   }
   \caption{Data transformed across a 50x4 \ReLU classification network. Notice how the the dataset is progressively mapped to zero as it traverses the network. This renders the output layer unable to solve the problem.}
@@ -127,7 +127,7 @@ We conjecture that these instabilities can be associated to a progressive drop o
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{Output\label{fig:moonsReLUBNOutput}}{\includegraphics[width=\hsize]{img/toy/relu-bn/output.pdf}}
+      \subcaptionbox{Output\label{fig:moonsReLUBNOutput}}{\includegraphics[clip, trim=2.35cm 1.75cm 4.5cm 0cm,width=\hsize]{img/toy/relu-bn/output.pdf}}
     }
   }
   \caption{Data transformed across a 50x4 \ReLUBN network. The dataset is collapsed in few points at the feature layer. As the gradient cannot be backpropagated across the truncation after the affine transform of $\gamma$ and $\beta$ despite the standarization, failing in the same manner than \ReLU only that with non-zero activations. This results in \emph{topological mixing} of the datasets. Therefore, the representational capability of the network is hindered to such extent that the resulting output, although non-trivial, is totally arbitrary.}
@@ -162,7 +162,7 @@ We conjecture that these instabilities can be associated to a progressive drop o
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{Output\label{fig:moonsUnitwiseOutput}}{\includegraphics[width=\hsize]{img/toy/unitwise/output.pdf}}
+      \subcaptionbox{Output\label{fig:moonsUnitwiseOutput}}{\includegraphics[clip, trim=2.35cm 1.75cm 4.5cm 0cm,width=\hsize]{img/toy/unitwise/output.pdf}}
     }
   }
   \caption{Data transformed across a 50x4 \SepUnit network. Notice how dead and affine units have been reduced. Despite collapsing the dataset in two points at the feature layer, the classification performed in the output layer is approximately correct. We conjecture that this is due the dead point addressed with \SepPoint.}
@@ -198,7 +198,7 @@ We conjecture that these instabilities can be associated to a progressive drop o
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{Output\label{fig:moonsPointwiseOutput}}{\includegraphics[width=\hsize]{img/toy/pointwise/output.pdf}}
+      \subcaptionbox{Output\label{fig:moonsPointwiseOutput}}{\includegraphics[clip, trim=2.35cm 1.75cm 4.5cm 0cm,width=\hsize]{img/toy/pointwise/output.pdf}}
     }
   }
   \caption{Data transformed across a 50x4 \SepPoint network. The network displays a richer internal representation without collapsing the dataset like \SepUnit or \ReLUBN. However, plenty of dead and affine units appear since they are not penalized, causing underfitting.}
@@ -268,7 +268,7 @@ We conjecture that these instabilities can be associated to a progressive drop o
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{Output\label{fig:moonsLayerwiseOutput}}{\includegraphics[width=\hsize]{img/toy/layerwise/output.pdf}}
+      \subcaptionbox{Output\label{fig:moonsLayerwiseOutput}}{\includegraphics[clip, trim=2.35cm 1.75cm 4.5cm 0cm,width=\hsize]{img/toy/layerwise/output.pdf}}
     }
   }
     \caption{Data transformed across a 50x4 \SepLayer network. Although being a relaxation of \SepUnitPoint showing an intuitive solution with several affine and dead units. Indeed, they not only do not hinder the network but forward the solution 4th layer to the output.}
