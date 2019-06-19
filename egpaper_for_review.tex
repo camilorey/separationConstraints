@@ -14,7 +14,22 @@
 
 % \usepackage{alphalph}
 % \renewcommand\thesubfigure{\alphalph{\value{subfigure}}}
-
+\renewcommand{\vec}[1]{\mathbf{#1}}
+\newcommand{\Real}[1]{\mathbb{R}^{#1}}
+\newcommand{\ReLU}{\texttt{ReLU}\,}
+\newcommand{\ReLUBN}{\texttt{ReLU + BN}\,}
+\newcommand{\moons}{\texttt{MOONS}\,}
+\newcommand{\cifar}{\texttt{CIFAR-10}\,}
+\newcommand{\SepConstraint}{\texttt{Sep-Cons}\,}
+\newcommand{\SepUnit}{\texttt{Sep-U}\,}
+\newcommand{\SepLayer}{\texttt{Sep-L}\,}
+\newcommand{\SepPoint}{\texttt{Sep-P}\,}
+\newcommand{\SepLayerBN}{\texttt{Sep-L-BN}\,}
+\newcommand{\SepUnitPoint}{\texttt{Sep-P+U}\,}
+\newcommand{\layer}{\ell}
+\newcommand\fuck[1]{\textcolor{red}{#1}}
+\DeclareMathOperator*{\argmin}{arg\,min}
+\DeclareMathOperator*{\argmax}{arg\,max}
 
 % Include other packages here, before hyperref.
 
@@ -31,23 +46,6 @@
 % Pages are numbered in submission mode, and unnumbered in camera-ready
 \ifcvprfinal\pagestyle{empty}\fi
 
-%commands and things
-\renewcommand{\vec}[1]{\mathbf{#1}}
-\newcommand{\Real}[1]{\mathbb{R}^{#1}}
-\newcommand{\ReLU}{\texttt{ReLU}\,}
-\newcommand{\ReLUBN}{\texttt{ReLU + BN}\,}
-\newcommand{\moons}{\texttt{MOONS}\,}
-\newcommand{\cifar}{\texttt{CIFAR-10}\,}
-\newcommand{\SepConstraint}{\texttt{Sep-Cons}\,}
-\newcommand{\SepUnit}{\texttt{Sep-U}\,}
-\newcommand{\SepLayer}{\texttt{Sep-L}\,}
-\newcommand{\SepPoint}{\texttt{Sep-P}\,}
-\newcommand{\SepLayerBN}{\texttt{Sep-L-BN}\,}
-\newcommand{\SepUnitPoint}{\texttt{Sep-U+P}\,}
-\newcommand{\layer}{\ell}
-\newcommand\fuck[1]{\textcolor{red}{#1}}
-\DeclareMathOperator*{\argmin}{arg\,min}
-
 
 %%% theorem styles and stuff
 \newtheorem{theorem}{Theorem}[section]
@@ -55,7 +53,7 @@
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{remark}[theorem]{Remark}
 \newtheorem{definition}{Definition}[section]
-
+\newtheorem{proposition}[theorem]{Proposition}
 
 \title{Separation Constraints and Zero Initialization to disencumber Deep Neural Networks}
 
@@ -76,10 +74,13 @@ Gran Via de les Corts Catalanes 585, Barcelona Spain, 08005\\
 }
 \begin{document}
 \maketitle
+\begin{abstract}
+The large variety of techniques available to facilitate deeper Neural Networks add complexity to the design process. In this work we simplify those decisions by introducing a set of constraints that attempts to replace them. Through a geometrical formulation we develop a set of constraints that force the units to perform separations on the data. This has the effect of linking the internal representations generated while transforming input to output, in favor of the back-propagation. The resulting network produces more \emph{intuitive} outputs, has greater representational power, reduces vanishing gradient and dead units, and allows Zero Initialization. Visual assessment of the effect of the separation constraints is provided through experimentation (contrasted to Batch Normalization), constructing insights from the results of our theoretically grounded geometrical framework. 
+\end{abstract}
 
-\input{introduction.tex}
-\input{separability.tex}
-\input{constraint.tex}
+\input{introduction_upgraded.tex}
+\input{separability_upgraded.tex}
+\input{constraint_upgraded.tex}
 \input{experiments.tex}
 \input{conclusions.tex}
 

@@ -232,7 +232,9 @@ We conjecture that these instabilities can be associated to a progressive drop o
     }
     % \hskip1em
     \parbox{.195\textwidth}{%
-      \subcaptionbox{Output\label{fig:moonsUnitpointwiseOutput}}{\includegraphics[width=\hsize]{img/toy/unitpointwise/output.pdf}}
+      \subcaptionbox{Output\label{fig:moonsUnitpointwiseOutput}}{
+      \includegraphics[clip, trim=2.35cm 1.75cm 4.5cm 0cm,width=\hsize, height=\hsize]{img/toy/unitpointwise/output.pdf}
+      }
     }
   }
 
@@ -361,18 +363,27 @@ We conjecture that these instabilities can be associated to a progressive drop o
 
 
 
-
-
 \begin{figure*}[h]
-  \begin{center}
-    \includegraphics[width=1.0\textwidth]{peaks}
+   
+    \begin{subfigure}[c]{1\textwidth}
+        \includegraphics[width=1\textwidth]{img/convergence/peaks_acc.pdf}
+        \caption{Evolution of accuracy during training.}
+        \label{fig:accuracy_convergence}
+    \end{subfigure}
+    \\
+    
+    \begin{subfigure}[c]{1\textwidth}
+    \centering
+        \includegraphics[width=1\textwidth]{img/convergence/peaks_loss.pdf}
+        \caption{Evolution of cross-entropy and constraint loss during training.}
+        \label{fig:loss_convergence}
+    \end{subfigure}
+    \\
+   \input{img/convergence_subplots.tex}
+    
       \caption{Evolution of training throughout epochs (cross-entropy, constraint loss, and accuracy). Left-hand axis show the accuracy metric (blue line) against the cross-entropy, and constraint loss in the right axis (orange line), for each epoch of the training phase in the horizontal axis.}
-			\label{fig:peaks}
-\end{center}
+	\label{fig:peaks}
 \end{figure*}
-
-
-
 
 
 \subsection{Zero initialization}\label{subsec:zero}
@@ -420,3 +431,98 @@ In order to \emph{break symmetry} of the layers, we use Dropout \cite{dropout}. 
   \label{tab:moons}
 \end{table}
 
+
+\subsection{Width versus Depth relation}
+
+
+\begin{figure*}
+  \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{img/moons_grid/acc-relu.pdf}
+        \caption{\ReLU}
+        \label{fig:moons_grid_relu}
+    \end{subfigure}
+    ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+      %(or a blank line to force the subfigure onto a new line)
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{img/moons_grid/acc-relu-bn.pdf}
+        \caption{\ReLUBN}
+        \label{fig:moons_grid_relubn}
+    \end{subfigure}
+    ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+      %(or a blank line to force the subfigure onto a new line)
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{img/moons_grid/acc-sep-up-0-0001.pdf}
+        \caption{\SepUnitPoint}
+        \label{fig:moons_grid_up}
+    \end{subfigure}
+    ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+      %(or a blank line to force the subfigure onto a new line)
+    \\
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{img/moons_grid/acc-sep-u-0-0001.pdf}
+        \caption{\SepUnit}
+        \label{fig:moons_grid_u}
+    \end{subfigure}
+    ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+      %(or a blank line to force the subfigure onto a new line)
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{img/moons_grid/acc-sep-p-0-0001.pdf}
+        \caption{\SepPoint}
+        \label{fig:moons_grid_p}
+    \end{subfigure}
+    ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+      %(or a blank line to force the subfigure onto a new line)
+    \centering
+    \begin{subfigure}[b]{0.3\textwidth}
+        \includegraphics[width=\textwidth]{img/moons_grid/acc-sep-l-0-0001.pdf}
+        \caption{\SepLayer}
+        \label{fig:moons_grid_l}
+    \end{subfigure}
+    ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+      %(or a blank line to force the subfigure onto a new line)
+    
+  \caption{Depth vs Width accuracy plot a for rectangular network using a grid (width from $2$ to $25$ and depth from $2$ to $150$),  trained using a Adam learning rate of $0.01$ in the \moons dataset. The color show the accuracy attained of each of the combinations of width and depth, the clearer the better. Notice how \ReLU, Figure \ref{fig:moons_grid_relu}, fails with networks deeper than 30 layers. In other hand, \ReLUBN, Figure \ref{fig:moons_grid_relubn}, manages to work until 70 layers deep. \SepUnitPoint,  Figure \ref{fig:moons_grid_up}, works significantly better than both, up to 120 layers. Notice how all the methods suffer from degradation from depth, which is partially alleviated by the use of greater width. This is consistent with \cite{simpnet} and \cite{densenet}. However, \SepUnitPoint is able to delay the apparition of the issue. This is especially visible when the number of units is small (from $2$ to $5$) where \ReLUBN fails to work whereas \SepUnitPoint does not. Regarding to the role of the constraint on its success, we find that \SepUnit, Figure \ref{fig:moons_grid_u}, allows the network to grow deeper, yet the accuracy can be lower following the linear decrease with the inverse of the width, which we blame on the inability of the \SepUnit constraint to address the \emph{dead point} issue. In the other hand, \SepPoint, Figure \ref{fig:moons_grid_p}, seems to perform well up to 50 layers, but it breaks down afterwards. Finally, \SepLayer , Figure \ref{fig:moons_grid_l} seems to suffer if the width is too large, performing well up to 70 layers.}
+  \label{fig:moons_grid} 
+\end{figure*}
+
+
+\begin{figure*}
+  \centering
+  \begin{subfigure}[b]{0.2\textwidth}
+        \includegraphics[width=\textwidth]{img/moons_grid/acc-sep-up-0-0001.pdf}
+        \caption{Glorot initialization}
+        \label{fig:moons_glorot_rho}
+    \end{subfigure}
+    ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+      %(or a blank line to force the subfigure onto a new line)
+      \centering
+    \begin{subfigure}[b]{0.2\textwidth}
+        \includegraphics[width=\textwidth]{img/moons_grid/acc-sep-up-0-0001-zero.pdf}
+        \caption{Zero initialization with $\rho = 0.51$}
+        \label{fig:moons_zeros_rho}
+    \end{subfigure}
+    ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+      %(or a blank line to force the subfigure onto a new line)
+    \centering
+    \begin{subfigure}[b]{0.2\textwidth}
+        \includegraphics[width=\textwidth]{img/moons_grid/acc-sep-up-0-0001-nm-0.pdf}
+        \caption{Glorot initialization with negative margin to zero}
+        \label{fig:moons_glorot_nm0}
+    \end{subfigure}
+    ~ %add desired spacing between images, e. g. ~, \quad, \qquad, \hfill etc. 
+      %(or a blank line to force the subfigure onto a new line)
+    \centering
+    \begin{subfigure}[b]{0.2\textwidth}
+        \includegraphics[width=\textwidth]{img/moons_grid/acc-sep-up-0-0001-nm-0.pdf}
+        \caption{Zero initialization with negative margin to zero}
+        \label{fig:moons_zeros_nm0}
+    \end{subfigure}
+    
+  \caption{Glorot vs Zero initialization in a series of Depth vs Width accuracy plot a for rectangular network using a grid (width from $2$ to $25$ and depth from $2$ to $150$),  trained using a Adam learning rate of $0.01$, annealed dropout for $1000$ epoch with an initial rate of $0.01$ in the \moons dataset. The color show the accuracy attained of each of the combinations of width and depth, the clearer the better. We show two different approaches to enable zero initialization by the use of \SepUnitPoint constraint. In the first two figures, we use $\rho = 0.51$ in order to bias the constraints towards the positive side (See Equation \ref{eq:definitionOfRho}) and compare how this enables to break the symmetry of the positive and negative constraints thus enabling training with zero initialization, showing how performs equally well. The second two figures show the same comparison but using the negative margin to zero, thus removing the symmetry naturally. We see how it performs equally well.
+  }
+  \label{fig:moons_grid_zero} 
+\end{figure*}

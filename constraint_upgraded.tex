@@ -1,0 +1,77 @@
+\section{Separating constraints}\label{sec:constraint}
+We have presented the concept of \emph{separation} from two perspectives: set theoretic wise (as done in definition \ref{def:separatingUnit} for units and proposition \ref{pro:separatingLayer}) and geometrically (as done in remark \ref{rmk:separationUsingGeometry}). 
+\\\\
+While a set-theoretic approach provides us with a rationale to analyze \ReLU-DNN behavior, it is through the geometric characterization of separation that we can design the constraints to regulate abstract image representation. More specifically, we can take inspiration in the SVM paradigm (with a soft-margin separation) as presented for example in  \cite{Burges1998TutorialOnSVMForPatternRecognition} or \cite{Hearst1998SupportVectorMachines}. 
+\\\\\
+By introducing  slack variables can ensure that remark \ref{rmk:separationUsingGeometry} is satisfied. Noticing that there always exist  $\xi^{+},\xi^{-}\geq 0$ such that 
+\begin{equation}
+\begin{array}{c}
+    1-\xi^{+} > 0 \\ -1+\xi^{-}<0\\
+\end{array}
+\end{equation}
+we can relax the conditions on remark \ref{rmk:separationUsingGeometry} to
+\begin{equation}\label{eq:basicConstraintFormulation}
+\begin{array}{l}
+    \displaystyle\max_{\vec{x}\in X}\{\vec{w}\cdot\vec{x}+b\}\geq 1-\xi^{+}\\
+    \displaystyle\min_{\vec{x}\in X}\{\vec{w}\cdot\vec{x}+b\}\leq -1+\xi^{-}\\
+\end{array}
+\end{equation}
+where $\xi^{+},\xi^{-}\geq 0$.
+\\\\
+This statement suggests an optimization problem on $\xi^{\pm}$ that for units attempts to enforce separation in accordance to definition \ref{def:separatingUnit}. Moreover, this optimization problem can be solved via gradient descent using a functional of the form
+\begin{equation}\label{eq:definitionOfRho}
+    g(\xi^{+},\xi^{-}) = \rho\xi^{+}+(1-\rho)\xi^{-}
+\end{equation}
+where $\rho\in[0,1]$, to find the \emph{smallest margin} that ensures that for layer $\layer_k$, $R(\layer_k)$ is satisfied (compare to \cite{Burges1998TutorialOnSVMForPatternRecognition}). The hyper-parameter $\rho$ has an intuitive geometric meaning: it controls whether the separation on set $X$ will attempt to separate set $X$ down its geometric \emph{middle}. 
+\\\\
+What remains of this section is to choose proper placement of the constraints among \ReLU-based DNN: by unit, layer, and \emph{point} to prevent both vanishing gradients and dead units/points. 
+
+\subsection{Unit based separation constraints \SepUnit}\label{subsec:sepUnit}
+Within a \ReLU DNN $F$, choose a unit $u_j^k$ in layer $\layer_k:\Real{n_k}\rightarrow\Real{n_{k+1}}$. Enforcing
+separation within this unit with regards to definition \ref{def:separatingUnit}, involves including slack variables $\xi_{jk}^{(\pm)}$ of the form:
+\begin{equation}
+    \begin{array}{lcl}
+    \max\{\vec{w}^k_j\cdot\vec{x}+b^k_j|\vec{x}\in X\}\geq 1-\xi^{+}_{jk}\\
+    \min\{\vec{w}^k_j\cdot\vec{x}+b^k_j|\vec{x}\in X\}\leq -1+\xi^{-}_{jk}\\
+\end{array}
+\end{equation}
+Consequently, we will need to introduce balancing parameters $rho_{jk}$, so that per unit (at each layer) we will need to minimize functions of the form
+\begin{equation}
+    g_{jk}(\xi^{+},\xi^{-}) = \rho_{jk}\xi^{+}_{jk}+(1-\rho_{jk})\xi^{-}_{jk}
+\end{equation}
+so that at for $F(\vec{x})$ we will have to add a loss functional of the form:
+\begin{equation}\label{eq:constraintLossForUnitSeparation}
+    g = \sum_{k=1}^{D}\sum_{j=1}^{m_k}\rho_{jk}\xi^{+}_{jk}+(1-\rho_{jk})\xi^{-}_{jk}
+\end{equation}
+We name this the \emph{separation by unit} formulation \SepUnit.
+
+\subsection{Point Based Separation \SepPoint}\label{subsec:sepPoint}
+
+In order to avoid the presence of dead points we introduce the \emph{Point Based Separation Constraint} \SepPoint. That is, we will constraint the slacks $\xi^{\pm}$ to each point on set $X$. That is given $\vec{x}\in X$, we introduce for layer $\layer_k$ a set of slack variables $\xi^{\pm}_{xk}\geq 0$ as follows:
+\begin{equation}\label{eq:pointSeparationConstraint}
+\begin{array}{lcl}
+    \displaystyle\max_{j=1,\ldots,m}\{\vec{w}^j_k\cdot\vec{x}+b^j_k\}\geq 1-\xi^{+}_{xk}\\\\
+    \displaystyle\min_{j=1,\ldots,m_k}\{\vec{w}^j_k\cdot\vec{x}+b^j_k\}\leq -1+\xi^{-}_{xk}\\
+\end{array}    
+\end{equation}
+so that the associated term to minimize will have the following form \ref{eq:convexCombinationOfConstraints}:
+\begin{equation}\label{eq:convexCombinationOfConstraints}
+    g = \sum_{k=1}^{D}\rho_{k}\xi^{+}_{xk}+(1-\rho_{k})\xi^{-}_{xk}
+\end{equation}
+Notice that \SepPoint does not prevent  dead units (as \SepUnit). We can combine both into \SepUnitPoint, to ensure that neither dead points nor dead units are present. 
+
+\subsection{Layer Based Separation \SepLayer}\label{subsec:sepLayer}
+The intuition while introducing a layer-based constraint introduction is to require that at least \emph{one} of the pre-activations of the entire set is greater than 1 and another is less than -1, \emph{per layer}. This remains a weakened version of the constraints that many not be enforced on \emph{all} units, but it maintains $R(\layer_k)$, with much less parameters that \SepUnit and \SepPoint. 
+\\\\
+Given a layer $\layer_k$ we define the \emph{layer} margins $\xi^{-}_k$ and $\xi^{+}_k$, and rewrite equation \ref{eq:basicConstraintFormulation} as follows:
+\begin{equation}\label{eq:layerSeparationConstraint}
+\begin{array}{lcl}
+    \displaystyle\max_{\vec{x}\in{X}}\max_{j=1,\ldots,m_k}\{\vec{w}^j_k\cdot\vec{x}+b^j_k\}\geq 1-\xi^{+}_k\\\\
+    \displaystyle\min_{\vec{x}\in{X}}\min_{j=1,\ldots,m_k}\{\vec{w}^j_k\cdot\vec{x}+b^j_k\}\leq -1+\xi^{-}_k\\
+\end{array}    
+\end{equation}
+We will need to introduce only $D$ constraints (one for each layer). In addition, the term to minimize alongside with the loss functional is as follows:
+\begin{equation}\label{eq:constraintLossForLayerSeparation}
+    g = \sum_{k=1}^{D}\lambda_k(\rho_{k}\xi^{+}_{k}+(1-\rho_{k})\xi^{-}_{k})
+\end{equation}
+we call this the \SepLayer formulation. The additional hyper-parameter  $\lambda_k$, $k=1,\ldots,D$ intends to allow us to focus on the separation within specific layers.

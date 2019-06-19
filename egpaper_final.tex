@@ -7,6 +7,7 @@
 \usepackage{amsmath}
 \usepackage{amssymb}
 \usepackage{booktabs}
+\usepackage{multirow}
 \usepackage{array}
 \usepackage{subcaption}
 \usepackage{optidef}
@@ -39,13 +40,14 @@
 \newcommand{\layer}{\ell}
 \newcommand\fuck[1]{\textcolor{red}{#1}}
 \DeclareMathOperator*{\argmin}{arg\,min}
-
+\DeclareMathOperator*{\argmax}{arg\,max}
 
 %%% theorem styles and stuff
 \newtheorem{theorem}{Theorem}[section]
 \newtheorem{corollary}{Corollary}[theorem]
 \newtheorem{lemma}[theorem]{Lemma}
 \newtheorem{remark}[theorem]{Remark}
+\newtheorem{proposition}[theorem]{Proposition}
 \newtheorem{definition}{Definition}[section]
 
 
@@ -76,9 +78,9 @@ Gran Via de les Corts Catalanes 585, Barcelona Spain, 08005\\
 \maketitle
 %\thispagestyle{empty}
 
-\input{introduction.tex}
-\input{separability.tex}
-\input{constraint.tex}
+\input{introduction_upgraded.tex}
+\input{separability_upgraded.tex}
+\input{constraint_upgraded.tex}
 \input{experiments.tex}
 \input{conclusions.tex}
 

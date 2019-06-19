@@ -1,6 +1,6 @@
 \section{Neural networks and unit separability}\label{sec:separability}
 
-A traditional so-called \emph{neural network} is composed of \emph{layers} whose input is the output of the previous \emph{layer} \ref{eq:layer}, which are composed of a set of arbitrary real-valued functions in $\mathbb{R}$ called \emph{units}\ref{eq:unit}. The units are commonly composed of an affine transform, parameterized by a vector of weights $\vec{w}$ and an scalar bias $b$, followed by a non-linear \emph{activation function} $\sigma : \mathbb{R}\rightarrow\mathbb{R}$. In the case of the \ReLU this activation function is consist in the truncation to zero of negative values.
+A traditional DNN \emph{neural network} is composed of \emph{layers} whose input is the output of the previous \emph{layer} \ref{eq:layer}, which are composed of a set of arbitrary real-valued functions in $\mathbb{R}$ called \emph{units}\ref{eq:unit}. The units are commonly composed of an affine transform, parameterized by a vector of weights $\vec{w}$ and an scalar bias $b$, followed by a non-linear \emph{activation function} $\sigma : \mathbb{R}\rightarrow\mathbb{R}$. In the case of the \ReLU this activation function is consist in the truncation to zero of negative values.
 
 \begin{equation}\label{eq:unit}
 u(x; \vec{w}, b) = \sigma(\vec{w} \cdot \vec{x} + b)
@@ -17,11 +17,9 @@ for $j=1,\ldots,m$. Units can be linearly combined with canonical vectors of $\R
 on more plain terms, $\layer(\vec{x})$ is an $m$-tuple (a \emph{concatenation}) of the outputs of units $u_1,u_2,\ldots,u_m$.
 \\\\
 A DNN (a neural network) is a function $F:\Real{N_0}\rightarrow\mathbb{R}$ defined by a finite collection of size $L$ of layer functions which map the data points to the targets through function composition, by mapping a into a series of \emph{intermediate representations} \ref{eq:network}. \cite{ramachandranEtAl2017SearchingForActivationFunctions,eswaranSingh2015SomeTheoremsForFFNN}.
-
 \begin{equation}\label{eq:network}
 F(x) = \layer_D \cdot \layer_{D-1} \dots \layer_1(x) 
 \end{equation}
-
 Now we want to relate the network to the data provided for solving the task. That is, \emph{formally define} the \emph{dataset}. 
 \\\\
 Given a collection $X=\{\vec{x}_1,\vec{x}_2,\cdots,\vec{x}_N\} \subset \Real{N}$ of points and their corresponding target values $Y=\{\vec{y}_1,\vec{y}_2,\cdots,\vec{y}_N,\} \subset \Real{M}$, we define a dataset as a pairing \ref{eq:dataset}.
@@ -70,14 +68,5 @@ and $u$ is also affine in terms of the lower part of $u$ if
 \begin{equation}
     lower(u)\cap X = \emptyset
 \end{equation}
-While a affine unit \emph{downgrades} the unit to an redundant transform (since it can be carried out by the following unit), \emph{dead} units compromise the \emph{representative} ability of the network.
-\\\\
-While dead neurons have been traditionally accepted as a minor issue for DNN related pheonomena, we argue as well that affine units are also not devoid of caveats.
-\\\\
-Thus, we wish to construct DNN in which the units \emph{separate} through set $X$ in the sense that they are neither \emph{dead}, nor \emph{affine}. In terms of the sets defined so far, we can do this in two (equivalent) ways:
-\begin{equation}\label{eq:separabilityDefinition}
-\begin{array}{c}
-    R_1(u) = \emptyset \neq upper(u)\cap X \neq X\\
-    R_2(u) = \emptyset \neq lower(u)\cap X \neq X\\
-\end{array}
-\end{equation}
+
+

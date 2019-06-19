@@ -1,30 +1,4 @@
-
 \section{Separating constraints}\label{sec:constraint}
-
-We wish to construct DNN in which the units \emph{separate} through set $X$ in the sense that they are neither \emph{dead}, nor \emph{affine}. In terms of the sets defined so far, we can do this in two (equivalent) ways:
-\begin{equation}\label{eq:separabilityDefinition}
-\begin{array}{c}
-    R_1(u) \equiv \emptyset \neq upper(u)\cap X \neq X\\
-    R_2(u) \equiv \emptyset \neq lower(u)\cap X \neq X\\
-\end{array}
-\end{equation}
-
-If we regard a DNN as a function in the form of equation \ref{eq:network}. such network depends on a collection $\theta$ of parameters organized as follows. 
-\\\\
-For a layer $\layer_k:\Real{n}\rightarrow\Real{m}$, we denote its collection of parameters $\theta_k$ of the form
-\begin{equation}
-    \theta_k = \{(\vec{w}^k_j,b^k_j)|j=1,\ldots,m\}
-\end{equation}
-thus, $\theta$ is composed of the union of the parameters of each layer:
-\begin{equation}
-    \theta = \displaystyle\bigcup_{k=1}^D\theta_k
-\end{equation}
-thus, given $F$ as a function depends on both its input $\vec{x}$. The parameters in collection $\theta$ are set during the training process via the minimization of some loss functional. That is we seek the solution of the following equation
-\begin{equation}\label{eq:generalOptimizationProblem}
-\argmin_{\theta} \mathcal{L}(\mathcal{T},\theta)
-\end{equation}
-for some loss functional that depends on the training set $T$ and $\theta$ (see for example \cite{LeCun06atutorial} for available choices in classification problems). 
-\\\\
 Conceptually, we wish to enforce \ReLU \emph{separability} based on the definition provided in equation \ref{eq:separabilityDefinition}. However, set theoretic functions are not differentiable \cite{Glorot10Initialization,lecun2015DeepLearningBig,munkres2000Topology}. 
 \\\\
 To bridge that gap, we will make an adaptation inspired on the technique of Support Vector Machines as presented for example in  \cite{Burges1998TutorialOnSVMForPatternRecognition} or \cite{Hearst1998SupportVectorMachines}. 

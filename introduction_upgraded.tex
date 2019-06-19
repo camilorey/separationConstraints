@@ -1,0 +1,58 @@
+\section{Introduction}\label{sec:introduction}
+The success of Deep Learning has been linked to its ability to learn \emph{abstract representations} from input data in a hierarchical fashion, that reshape and resignify data as it traverses deeper into the network. Under this assumption, the deeper a DNN, the richer these representations become and the more sophisticated are the patterns learned by it \cite{LeCun06atutorial,ramachandranEtAl2017SearchingForActivationFunctions}. However, depth is also instrumental in the development of various DNN \emph{issues} like the \emph{vanishing gradient} as presented in \cite{vanishing1} or \cite{vanishing2}; the \emph{exploding gradient} as presented in \cite{exploding}; the \emph{dead unit problem} as presented in \cite{leaky},\cite{whyreludie} or \cite{whenneuronsfail}; or the \emph{degradation problem} as presented in \cite{resnet}. 
+\\\\
+Existing methods attempt to fix these issues by reshaping abstract representations using a variety of approaches   comprising two families, summarized for the reader in Table \ref{tab:techniquesTable}: (1) \emph{architectural modifications} and (2) \emph{data manipulations}. By architectural modifications we mean methods that profit from the feed-forward structure of DNN (i.e. function composition) to secure meaningful abstract representations by increasing for example layer width, using information from previous layers to creating additional connections within a DNN \cite{resnet,densenet}; or modifying unit activation functions to avoid trivial values \cite{crelu}. Meanwhile \emph{data manipulation} (final row of \ref{tab:techniquesTable}) attempts to somehow \emph{correct} abstract representations via covariance shifting (i.e. standarization) \cite{batchnorm} to secure coherency and numerical stability while in training. 
+\\\\
+In the case of \ReLU based DNN, these issues can be related to abstract representations within a \emph{geometric mindset}. More specifically, both gradient issues and unit problems are deeply intertwined with the position of the hyper-planes defined by the preactivation in \ReLU units. That is, as units partition input data, a portion of it is mapped to zero (in the negative hemi-space of the hyper-plane) while the other is forwarded affinely for further processing. Since loss gradient is only non-zero on forwarded points \cite{reyRiera2019ModellingClassificationReLU}, the vanishing gradient and dead unit problem can be traced back to \emph{improper} plane positioning, while the exploding gradient and degradation can be related to the compositions of affine forwarding in feed-forwarding DNN. We suggest that the if not managed, the issue becomes critical in \emph{deeper} DNN.   
+\\\\
+We contend that \emph{influencing} abstract representation evolution (while training) may secure \emph{proper separations} of data comprising an alternate method to attack aforementioned issues that neither tampers with the feed-forward structure of DNN, nor requires \emph{post-hoc} geometric transformations on data (see the final row on table \ref{tab:techniquesTable}). Moreover, we argue that an elegant approach to abstract representation regulation can be done by introducing minimizing constraints over pre-activations (during training) to secure proper plane positioning: the \texttt{Sep} constraints, over DNN parameters (as detailed throughout section \ref{sec:constraint}).
+\\\\
+Furthermore, our \texttt{Sep} constraints can be enforced at unit (\texttt{Sep-U}), data point (\texttt{Sep-P}) and layer level (\texttt{Sep-L}). The rationale to formulate them is derived from the explanation model constructed by Rey-Torres et al. in  \cite{reyRiera2019ModellingClassificationReLU} as detailed in section \ref{sec:separability}. 
+\\\\
+Throughout section \ref{sec:experiments} we test our separation constraints on the \texttt{MOONS} dataset in a series of experiments, that increase our insight into the mechanics and dynamics of separation performed by a deep DNN and the effect of  separation constraints, and benchmark it to batch-normalization.  
+
+\begin{table*}[h!]
+\centering
+\begin{tabular}{@{}llll@{}}
+\toprule
+Family & Method & Examples & Intended issues\\ 
+\midrule
+%\multirow{3}{*}
+Architectural & Width increase & \begin{tabular}[c]{@{}l@{}}
+ Wide \texttt{ResNet} \cite{wideresnet}\\ 
+\texttt{Inception} \cite{inceptionv1}\\
+\end{tabular}                                                                 
+& \begin{tabular}[c]{@{}l@{}}
+Vanishing Gradient\\ 
+Increase Depth
+\end{tabular}    \\
+& 
+\begin{tabular}[c]{@{}l@{}}
+Connection \\ 
+modification
+\end{tabular} 
+& \begin{tabular}[c]{@{}l@{}}
+ \texttt{ResNet} \cite{resnet} \\
+ \texttt{DenseNet}\cite{densenet}\\
+\end{tabular}                                   
+& \begin{tabular}[c]{@{}l@{}}
+Vanishing Gradient\\ 
+\\ 
+Increase Depth\end{tabular} 
+\\
+& Unit Alteration                                                    
+& \begin{tabular}[c]{@{}l@{}}
+\emph{leaky}-\ReLU \cite{leaky} \\ 
+\texttt{PReLU} \cite{prelu}\\ 
+\texttt{C-ReLU} \cite{crelu}
+\end{tabular} & \begin{tabular}[c]{@{}l@{}}
+Vanishing Gradient\\ 
+Dead Neurons
+\end{tabular} \\
+Data Manipulation & Modify layer output & \emph{batch normalization} \cite{batchnorm}  & Exploding Gradient                  \\ 
+\bottomrule
+\end{tabular}
+\caption{Summary of techniques commonly used in deep learning to overcome issues like enhanced depth, vanishing/exploding gradient and dead neurons.}
+\label{tab:techniquesTable}
+\end{table*}
+
