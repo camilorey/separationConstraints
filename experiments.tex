@@ -364,25 +364,31 @@ We conjecture that these instabilities can be associated to a progressive drop o
 
 
 \begin{figure*}[h]
-   
     \begin{subfigure}[c]{1\textwidth}
-        \includegraphics[width=1\textwidth]{img/convergence/peaks_acc.pdf}
-        \caption{Evolution of accuracy during training.}
-        \label{fig:accuracy_convergence}
-    \end{subfigure}
-    \\
-    
-    \begin{subfigure}[c]{1\textwidth}
-    \centering
+        \centering
         \includegraphics[width=1\textwidth]{img/convergence/peaks_loss.pdf}
         \caption{Evolution of cross-entropy and constraint loss during training.}
         \label{fig:loss_convergence}
     \end{subfigure}
     \\
-   \input{img/convergence_subplots.tex}
+    \begin{subfigure}[c]{1\textwidth}
+        \centering
+        \begin{tikzpicture}[remember picture]
+            \node[anchor=south west,inner sep=0] (loss) at (0,0) {
+            \includegraphics[width=1\textwidth]{img/convergence/peaks_acc.pdf}};
+        \end{tikzpicture}
+        \caption{Evolution of accuracy during training.}
+        \label{fig:accuracy_convergence}
+    \end{subfigure}
+    \\
+     \input{img/plateau_subplots.tex}
+
     
+
       \caption{Evolution of training throughout epochs (cross-entropy, constraint loss, and accuracy). Left-hand axis show the accuracy metric (blue line) against the cross-entropy, and constraint loss in the right axis (orange line), for each epoch of the training phase in the horizontal axis.}
 	\label{fig:peaks}
+	
+
 \end{figure*}
 
 

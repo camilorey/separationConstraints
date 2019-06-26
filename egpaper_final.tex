@@ -13,6 +13,10 @@
 \usepackage{optidef}
 \usepackage{xcolor}
 % Include other packages here, before hyperref.
+\usepackage{alphalph}
+\renewcommand*{\thesubfigure}{%
+\alphalph{\value{subfigure}}%
+}%
 
 % If you comment hyperref and then uncomment it, you should delete
 % egpaper.aux before re-running latex.  (Or just hit 'q' on the first latex
@@ -49,6 +53,8 @@
 \newtheorem{remark}[theorem]{Remark}
 \newtheorem{proposition}[theorem]{Proposition}
 \newtheorem{definition}{Definition}[section]
+
+
 
 
 % Pages are numbered in submission mode, and unnumbered in camera-ready

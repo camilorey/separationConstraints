@@ -12,6 +12,17 @@
 \usepackage{optidef}
 \usepackage{xcolor}
 
+\makeatletter
+\@namedef{ver@everyshi.sty}{}
+\makeatother
+\usepackage{tikz}
+\usepackage{tikz}
+
+\usepackage{alphalph}
+\renewcommand*{\thesubfigure}{%
+\alphalph{\value{subfigure}}%
+}%
+
 % \usepackage{alphalph}
 % \renewcommand\thesubfigure{\alphalph{\value{subfigure}}}
 \renewcommand{\vec}[1]{\mathbf{#1}}
@@ -81,7 +92,7 @@ The large variety of techniques available to facilitate deeper Neural Networks a
 \input{introduction_upgraded.tex}
 \input{separability_upgraded.tex}
 \input{constraint_upgraded.tex}
-\input{experiments.tex}
+\input{experiments_upgraded.tex}
 \input{conclusions.tex}
 
 
