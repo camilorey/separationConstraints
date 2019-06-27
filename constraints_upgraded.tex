@@ -25,7 +25,7 @@ In symmetry, enforcing the constraint with $\xi^{-}$ promotes at least pre-activ
 \\\\
 Thus, since neither the upper, nor the lower part of the unit is empty (i.e. the units are neither dead nor affine in the sense of equations \ref{eq:deadUnitVersion1} and equation \ref{eq:affineUnit} respectively).
 \\\\
-Additionally, since introducing those constraints imply the the value of the weights now depend on it output instead of only on the loss functional, this enables to use \emph{zero-initialization}. However, notice that since values of $\xi^+$ and $\xi^-$ will be equal and cancel each other, we need to introduce a mechanism to break the tie. In our case we chose a convex combination of both that we name $g$. We use a negligible value (0.51 in practice) so it does not bias the problem.
+Additionally, since introducing those constraints imply the the value of the weights now depend on their output instead of only on the loss functional, this enables to use \emph{zero-initialization}. However, notice that since values of $\xi^+$ and $\xi^-$ will be equal and cancel each other, we need to introduce a mechanism to break the tie. In our case we chose a convex combination of both that we name $g$. We use a negligible value (0.51 in practice) so it does not bias the problem.
 
 \begin{equation}\label{eq:definitionOfRho}
     g(\xi^{+},\xi^{-}) = \rho\xi^{+}+(1-\rho)\xi^{-}

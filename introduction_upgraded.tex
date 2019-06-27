@@ -3,9 +3,9 @@ The success of Deep Learning has been linked to its ability to learn \emph{abstr
 \\\\
 Existing methods attempt to fix these issues by regulating abstract representation formation in deference to the back-propagation of error (as a learning strategy) comprising two families of approaches, summarized for the reader in Table \ref{tab:techniquesTable}: (1) \emph{architectural modifications} and (2) \emph{data manipulations}. 
 \\\\
-By architectural modifications we mean methods that profit from the feed-forward structure of DNN to secure meaningful back-propagation. Particularly, we wish to draw attention to the \emph{layer width increase} strategy. As DNN become deeper, a common belief is to increase the width of deeper layers to reduce the probability of dead units, dead points and degradation. However, as described for example in the \emph{SimpNet} \cite{simpnet}, there is an optimal layer width, over which accuracy begins to diminish.  
+By architectural modifications we mean methods that profit from the feed-forward structure of DNN to secure meaningful back-propagation. Particularly, we wish to draw attention to the \emph{layer width increase} strategy. As DNN become deeper, a common belief is to increase the width of deeper layers to reduce the probability of dead units, dead points and degradation. However, as described for example in the \emph{SimpNet} \cite{simpnet}, there is an optimal layer width, over which accuracy begins to diminish. \todo{SimpNet does not say this. SimpNet says that for a given depth a minimum width is needed} 
 \\\\
-In the case of \ReLU based DNN, we claim that these issues occur amidst several geometric undertows, that when unamanged, corrupt back-propagation. More specifically, we contend that gradient issues (vanishing and exploding) alongside with death problems (unit and point) are intertwined with the position of the hyper-planes defined by the preactivation of \ReLU units \emph{relative} to the dataset. During the training process, these hyperplanes move and rotate depending on the gradient of the loss functional.    
+In the case of \ReLU based DNN, we claim that these issues occur amidst several geometric undertows, that when unamanged, corrupt \todo{hinder} back-propagation. More specifically, we contend that gradient issues (vanishing and exploding) alongside with death problems (unit and point) are intertwined with the position of the hyper-planes defined by the preactivation of \ReLU units \emph{relative} to the dataset. During the training process, these hyperplanes move and rotate depending on the gradient of the loss functional.    
 \\\\
 As shown by Rey-Torres et al. \cite{reyRiera2019ModellingClassificationReLU}), loss gradient (with regards to parameters) is a linear transformation of dataset points (or their abstract representation), that features a product with with a diagonal matrix comprised of characteristic functions of the positive hemi-spaces defined by units (see section 2 of \cite{reyRiera2019ModellingClassificationReLU}). As we present in Section \ref{sec:separability} on Separability, dead units, dead points and the vanishing gradient are all present in the negative hemi-spaces of layers \cite{reyRiera2019ModellingClassificationReLU}. 
 \\\\
@@ -28,7 +28,7 @@ Architectural & Width increase & \begin{tabular}[c]{@{}l@{}}
 \end{tabular}                                                                 
 & \begin{tabular}[c]{@{}l@{}}
 Vanishing Gradient\\ 
-Increase Depth
+Train deeper networks
 \end{tabular}    \\
 & 
 \begin{tabular}[c]{@{}l@{}}

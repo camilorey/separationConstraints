@@ -1,4 +1,12 @@
 \section{Experimentation}\label{sec:experiments}
+% Backprop in ReLU can only propagate through the positive half-space
+% Units and points lying on the negative side of the hyperplanes are thus bound to fail.
+Using back-propagation in \ReLU networks can only propagate through the positive half-space
+\begin{enumerate}
+    \item Force units to separate at least two points.
+    \item Force points to have at least one positive and negative pre-activation. . 
+\end{enumerate}
+
 Hypothesis at hand:\\\\
 In the case of \ReLU based DNN, we claim that these issues have a geometric undertow, that corrupts back-propagation as a training strategy. To be more precise, we contend that gradient issues (vanishing and exploding) alongside with death problems (unit and point) are intertwined with the position of the hyper-planes defined by the preactivation of \ReLU units, that hinders error minimization.
 \begin{enumerate}
@@ -6,7 +14,32 @@ In the case of \ReLU based DNN, we claim that these issues have a geometric unde
     \item ensuring that each point in the data-set is separated contrarily by at least two units. That is, it lies on the affine component of one, and on the zero-set of another. 
 \end{enumerate}
 \subsection{Performance assessment}\label{subsec:benchmarking}
-Notice how \ReLU, Figure \ref{fig:moons_grid_relu}, fails with networks deeper than 30 layers. In other hand, \ReLUBN, Figure \ref{fig:moons_grid_relubn}, manages to work until 70 layers deep. \SepUnitPoint,  Figure \ref{fig:moons_grid_up}, works significantly better than both, up to 120 layers. Notice how all the methods suffer from depth-dependent accuracy degradation, but is compensated (partially) using width increase. This is consistent with \cite{simpnet} and \cite{densenet}. 
+In terms of overall performance, we chose to benchmark the separating constraints against one another, and to the very popular \emph{batch normalization} as presented in \cite{batchnorm} using the implementation from \texttt{Keras}. 
+\\\\
+The reader can find a summary  of overall results in Table \ref{tab:moons}. The highest performance was obtained by the \SepLayer with an accuracy of $100\%$ both in validation and training, and attaining a loss value of $0$ in training. While the separation constraints display superior accuracy in comparison to classical \ReLU and batchnorm (first two rows of Table \ref{tab:moons}), it is important to notice that the accuracy drop between training and validation is also significantly lower percentage-wise. While classical \ReLU and \ReLUBN experience a $20+\%$ accuracy drop between training and validation, the \SepConstraint family experiences drops from less than $14\%$, with \SepUnitPoint experiencing only a $5,59\%$ accuracy drop.  
+\\\\
+However, Loss value variation (recorded at maximal accuracy performance) is significantly higher using for the \SepConstraint family ($72+\%$ for \SepUnit and \SepPoint and $100\%$ for \SepLayer), while for \ReLU and \ReLUBN loss variation remains below $5\%$. These measurements were taken for the \moons dataset using a fixed thin network of depth $D=50$ and a width $W=4$. 
+\begin{table}[h!]
+\begin{center}
+\begin{tabular}{l|rr|rr}
+\toprule
+{}  & \multicolumn{2}{c}{Accuracy} & \multicolumn{2}{c}{Loss} \\
+{}  & Train   & Val.  & Train  & Val.  \\
+\midrule
+\ReLU            &  0.5176 &      0.4 &  0.6925 &  0.6938 \\
+\ReLUBN     &  0.8117 &      0.6 &  0.6331 &  0.6636 \\
+\SepLayer &  1.0000 &      1.0 &  0.0000 &  0.0211 \\
+\SepPoint    &  0.9294 &  0.8000 &  0.1765 &  0.6476 \\
+\SepUnit    &  0.9058 &  0.8000 &  0.4161 &  1.5228 \\
+\SepUnitPoint   &  0.9882 &  0.9333 &  0.6988 &  1.0810 \\
+\bottomrule
+\end{tabular}
+\end{center}
+\caption{Maximal performance experiment using the \moons dataset. From left to right, accuracy and loss (for \emph{train} and \emph{validation} sets) for \ReLU, \ReLUBN, and  \SepConstraint in all its variants.}
+  \label{tab:moons}
+\end{table}
+
+When varying depth and width we can see that the \SepConstraint Family works favorably in deeper thin networks. Notice how \ReLU, Figure \ref{fig:moons_grid_relu}, fails with networks deeper than 30 layers. In other hand, \ReLUBN, Figure \ref{fig:moons_grid_relubn}, manages to work until 70 layers deep. \SepUnitPoint,  Figure \ref{fig:moons_grid_up}, works significantly better than both, up to 120 layers. Notice how all the methods suffer from depth-dependent accuracy degradation, but is compensated (partially) using width increase. This is consistent with \cite{simpnet} and \cite{densenet}. 
 \\\\
 \SepUnitPoint however is able to delay the apparition of the issue. Specially when using \emph{skinny} DNN ($W$ in between $2$ to $5$) where \ReLUBN fails. We observe that \SepUnit, Figure \ref{fig:moons_grid_u}, allows for deeper networks yet accuracy drops inversely to width, a phenomenon we blaim on the inability of the \SepUnit constraint to address the \emph{dead points}. 
 \\\\
@@ -65,6 +98,7 @@ In addition, \SepPoint, (Figure \ref{fig:moons_grid_p}), seems to perform well u
   \label{fig:moons_grid} 
 \end{figure*}
 \subsection{On the geometry of the separation constraints}\label{subsec:geometryOfSeparation}
+
 \begin{figure*}[h!]
   \centering
   \parbox{\textwidth}{
@@ -413,7 +447,7 @@ In addition, \SepPoint, (Figure \ref{fig:moons_grid_p}), seems to perform well u
         \label{fig:moons_zeros_nm0}
     \end{subfigure}
     
-  \caption{Glorot vs Zero initialization in a series of Depth vs Width accuracy plot a for rectangular network using a grid (width from $2$ to $25$ and depth from $2$ to $150$),  trained using a Adam learning rate of $0.01$, annealed dropout for $1000$ epoch with an initial rate of $0.01$ in the \moons dataset. The color show the accuracy attained of each of the combinations of width and depth, the clearer the better. We show two different approaches to enable zero initialization by the use of \SepUnitPoint constraint. In the first two figures, we use $\rho = 0.51$ in order to bias the constraints towards the positive side (See Equation \ref{eq:definitionOfRho}) and compare how this enables to break the symmetry of the positive and negative constraints thus enabling training with zero initialization, showing how performs equally well. The second two figures show the same comparison but using the negative margin to zero, thus removing the symmetry naturally. We see how it performs equally well.
+  \caption{Glorot vs Zero initialization in a series of Depth $D$ vs Width $W$ accuracy plots a for rectangular network using a grid ($2\leq W\leq 25$ and $2\leq D\leq 150$), trained over the \texttt{MOONS} dataset using an Adam learning rate of $0.01$, annealed dropout for $1000$ epoch with an initial rate of $0.01$ in the. The color scheme depicts accuracy attained for each grid location, from dark to light. (a) classical Glorot, (b) Zero intialization using $\rho=0.51$, (c) Glorot initialization using $\rho=0$ or enforcing only non-negative constraints and (d) Zero initialization using $\rho=0$ or non-negative constraints. 
   }
   \label{fig:moons_grid_zero} 
 \end{figure*}
