@@ -58,7 +58,7 @@ Set $Z(\layer_k)$ is paramount also in the \emph{vanishing} gradient problem. As
 \\\\
 In this sense, non-zero back-propagation over \ReLU-DNN is --from the point of view of points-- dependent on that they are not dead. Meanwhile, from the point of view of units, non-zero back-propagation over them is only possible when the argument does not lie in their zero-set or worst exactly on the separating plane (notice the discontinuity described in Rey-Torres et al. \cite{reyRiera2019ModellingClassificationReLU}). Taking into account that points are mapped throughout the DNN conforming \emph{abstract representations}, a point may be dead with regards to a layer but die in the next. When whole sets are mapped through \ReLU-DNN, layers may \emph{degrade} them completely if they happen to be a subset of their zero-set.  
 \\\\
-In order to understand how units define dead points, we introduce the concept of a \emph{separating} unit with regards to an arbitrary set $X$. 
+In order to understand how units die, we introduce the concept of a \emph{separating} unit with regards to an arbitrary set $X$. 
 \begin{definition}[Separating Unit]\label{def:separatingUnit}
 Given an arbitrary set $X\subset\Real{n_k}$, we say that the $j$-th unit on layer $k$, $u_j^k$ is able to \emph{separate} through $X$ if the following predicate is satisfied:
 \begin{equation}\label{eq:predicateWithUpper}
@@ -71,13 +71,6 @@ Since $upper(u_j^k)$ and $lower(u_j^k)$ compose a partition of $\Real{n_k}$ it i
 \end{equation}
 Thus, by construction, a separating unit cannot be dead, and if $R_X(u_j^k)$ is valid, $u_j^k$ cannot degrade set $X$ to a single point. 
 \\\\
-We can extend this definition of separability to layers as follows: 
-\begin{proposition}[Separating Layer]\label{pro:separatingLayer}
-We say that $\layer_k$ is able to \emph{separate} set $X$ if the predicate is also satisfied:
-\begin{equation}\label{eq:predicateOverLayer}
-    R_X(\layer) \equiv \emptyset \neq A(\layer)\cap X \neq X
-\end{equation}
-\end{proposition}
 In terms of pre-activations, $R(u_j^k)$ can be restated as follows:
 \begin{remark}\label{rmk:separationUsingGeometry}
 Given a \ReLU-DNN $F(\vec{x})$ of depth $D$, let $k$ such that $1\leq k \leq D$. If $u_j^k$ the $j$-th unit on $\layer_k$, $R_X(u_j^k)$ is equivalent to the following:
@@ -110,3 +103,19 @@ we must have that
  \end{array}
 \end{equation} 
 thus, if the inequalities are satisfied then $R(u_j^k)$ is also. 
+
+% CARLES'S PRECIOUS CAMILO'S WORK SULLING STARTS HERE
+In order to understand how units define dead points, we introduce the concept of a \emph{separated} point with regards to an arbitrary set $X$. 
+\begin{definition}[Separated point]\label{def:separatingUnit}
+Given an arbitrary set $X\subset\Real{n_k}$, we say that point $x_i$ is \emph{separated} by the $j$-th and $l$-th units on layer $k$, $u_j^k$, $u_l^k$ if the following predicate is satisfied:
+
+\begin{equation}\label{eq:pointPredicate}
+    R_{x_i}(u_j^k, u_l^k)\equiv x_i \in upper(u_j^k) \wedge x_i \in lower(u_l^k)
+\end{equation}
+\end{definition}
+
+Thus, by construction, a separated point cannot be dead, and if $R_{x_i}(u_j^k, u_l^k)$ is valid, layer $\layer^k$ cannot degrade the point. 
+\\\\
+
+% CARLES'S PRECIOUS CAMILO'S WORK SULLING ENDS HERE (and probably his life as well for atonement)
+ 

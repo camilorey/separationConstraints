@@ -1,5 +1,5 @@
 \section{Separating constraints}\label{sec:constraint}
-Conceptually, we wish to enforce \ReLU \emph{separability} based on the definition provided in equation \ref{eq:separabilityDefinition}. However, set theoretic functions are not differentiable \cite{Glorot10Initialization,lecun2015DeepLearningBig,munkres2000Topology}. 
+Conceptually, we wish to enforce \emph{separability} based on the definition provided in equations \ref{eq:predicateWithUpper} and \ref{eq:pointPredicate}. However, set theoretic functions are not differentiable \cite{Glorot10Initialization,lecun2015DeepLearningBig,munkres2000Topology}. 
 \\\\
 To bridge that gap, we will make an adaptation inspired on the technique of Support Vector Machines as presented for example in  \cite{Burges1998TutorialOnSVMForPatternRecognition} or \cite{Hearst1998SupportVectorMachines}. 
 \\\\\
@@ -15,7 +15,6 @@ This slack variables can be added to the optimization problem \ref{eq:generalOpt
 \argmin_{\theta,\xi^{+},\xi^{-}} \mathcal{L}(\mathcal{T},\theta) + \lambda g(\xi^{+},\xi^{-})
 \end{equation}
 where $\lambda$ is a \emph{hyper-parameter} that introduces a trade-off between the constraint fulfillment and the main task loss. Intuitively, we mean to \emph{balance} the effect of the constraints and solving the actual problem.
-Also, we will require that function $g$ is non-negative, so that in the limit (i.e. when minimized), the original loss will keep the training process going. 
 \\\\
 The intuition behind the introduction of these constraints presented in Equation \ref{eq:basicConstraintFormulation} is as follows. 
 \\\\
@@ -31,10 +30,10 @@ Additionally, since introducing those constraints imply the the value of the wei
     g(\xi^{+},\xi^{-}) = \rho\xi^{+}+(1-\rho)\xi^{-}
 \end{equation}
 
-What remains of this section is to choose the object of the constraints among the different structures of a network: by unit, by layer, and \emph{by point}.
+What remains of this section is to choose the object of the constraints among the different structures of a network: by unit and by point.
 
 \subsection{Unit based separation constraints \SepUnit}\label{subsec:sepUnit}
-Within a \ReLU DNN $F$, choose a unit $u_j^k$ in layer $\layer_k:\Real{n_k}\rightarrow\Real{m_k}$. This unit will be defined univocally by its parameters:
+In order to avoid the presence of dead units (recall Equation \ref{eq:defDeadUnit}, we introduce the \emph{Unit Based Separation Constraint} \SepUnit. Within a \ReLU DNN $F$, choose a unit $u_j^k$ in layer $\layer_k:\Real{n_k}\rightarrow\Real{m_k}$. This unit will be defined univocally by its parameters:
 \begin{equation}\label{eq:unitSepParameterWriting}
     u^k_j(\vec{x}) = u(\vec{x};\vec{w}^k_j,b^k_j)
 \end{equation}
@@ -61,7 +60,7 @@ We name this the \emph{separation by unit} formulation \SepUnit. Notice that thi
 
 \subsection{Point Based Separation \SepPoint}\label{subsec:sepPoint}
 
-In order to avoid the presence of dead points (recall Equation \ref{eq:deadPoint}, we introduce the \emph{Point Based Separation Constraint} \SepPoint. Moreover, since in practice the entire dataset is not used for training, but \emph{batches} of it \cite{LeCun06atutorial}, a small batch size may cause inconsistencies within the training process. Under our formulation,  these issues would translate to unit penalization for not fulfilling \SepUnit on a \emph{per-batch} basis (due to the fact that the points that comply with the constraints may lie outside the batch).  We need to make our constraint formulation independent of batch choice by focusing on the values that constraints take on specific points. 
+In order to avoid the presence of dead points (recall Equation \ref{eq:deadPoint}, we introduce the \emph{Point Based Separation Constraint} \SepPoint. Moreover, since in practice the entire dataset is not used for training, but \emph{batches} of it \cite{LeCun06atutorial}, a small batch size may cause inconsistencies within the training process. Under our formulation,  these issues would translate to unit penalization for not fulfilling \SepUnit on a \emph{per-batch} basis (due to the fact that the points that comply with the constraints may lie outside the batch).  Thus, it is desirable to make our constraint formulation independent of batch choice by focusing on the values that constraints take on specific points. 
 \\\\
 That is, we will constraint the slacks $\xi^{\pm}$ to each point on the batch. That is given $\vec{x}\in X$, and $u_1,\ldots,u_m$ unit functions in a layer, we define slack variables $\xi^{-}_{xk},\xi^{+}_{xk}\geq 0$ in the context of the following constraints:
 \begin{equation}\label{eq:pointSeparationConstraint}
@@ -76,26 +75,3 @@ so that the associated term to minimize will have the following form \ref{eq:con
 \end{equation}
 
 Notice that \SepPoint does not prevent  dead units (as \SepUnit). We can combine both into \SepUnitPoint, to ensure that neither dead points nor dead units are present. 
-
-\subsection{Layer Based Separation \SepLayer}\label{subsec:sepLayer}
-
-As previous network architectures like \texttt{ResNet} and \texttt{DenseNet} have shown us, it is desirable sometimes to \emph{skip} connections in between layers, for \emph{accuracy} can improve dependent on depth \cite{resnet, densenet}. However, this growth in accuracy is not unbounded and past some point it degrades \cite{simpnet}. 
-\\\\
-Thus, it is important to provide a mechanism to forward the output of intermediate layers to the top of the network to which our constraint formulation can adapt and coalesce with existing techniques. Additionally, the number of constraints that we need to place, especially in \SepUnitPoint, is large and we would like to find a way to reduce the computational complexity.
-\\\\
-We suggest to relax the \SepUnit formulation for that aim and provide the reader with the \SepLayer formulation. The intuition here is to require that at least \emph{one} of the pre-activations of the entire batch is greater than 1 and another is less than -1, per layer.  
-\\\\
-With this change we allow the presence of affine units, but ensure that there is at least one pre-activation greater (or lesser) than 1 (-1). That is, given a layer $\layer_k$ we define the \emph{layer} margins $\xi^{-}_k$ and $\xi^{+}_k$, and rewrite equation \ref{eq:basicConstraintFormulation} as follows:
-\begin{equation}\label{eq:layerSeparationConstraint}
-\begin{array}{lcl}
-    \displaystyle\max_{\vec{x}\in{X}}\max_{j=1,\ldots,m_k}\{\vec{w}^j_k\cdot\vec{x}+b^j_k\}\geq 1-\xi^{+}_k\\\\
-    \displaystyle\min_{\vec{x}\in{X}}\min_{j=1,\ldots,m_k}\{\vec{w}^j_k\cdot\vec{x}+b^j_k\}\leq -1+\xi^{-}_k\\
-\end{array}    
-\end{equation}
-We will need to introduce only $D$ constraints (one for each layer). In addition, the term to minimize alongside with the loss functional is as follows:
-\begin{equation}\label{eq:constraintLossForLayerSeparation}
-    G = \sum_{k=1}^{D}\lambda_k(\rho_{k}\xi^{+}_{k}+(1-\rho_{k})\xi^{-}_{k})
-\end{equation}
-we call this the \SepLayer formulation. Notice that we have introduced additional hyperparameters $\lambda_k$ to focus on the role specific layers.   
-
-

@@ -14,16 +14,18 @@ We test our proposal in a series of experiments (Section \ref{sec:experiments}) 
 
 \begin{table*}[h!]
 \centering
+% \begin{tabular}{cccc}
 \begin{tabularx}{\textwidth}{lXlXlXlX}
 \toprule
 Family & Method & Examples & Intended issues\\ 
 \midrule
-Architectural & Width increase & \texttt{Wide-ResNet} \cite{wideresnet}, \texttt{Inception} \cite{inceptionv1} & Vanishing Gradient \newlineIncrease Depth\\
+Architectural & Width increase & \texttt{Wide-ResNet} \cite{wideresnet}, \texttt{Inception} \cite{inceptionv1} & Vanishing Gradient \newline Increase Depth\\
 & Additional connections & \texttt{ResNet} \cite{resnet}, \texttt{DenseNet}\cite{densenet} & Vanishing Gradient \newline Increase Depth \\
 & Unit augmentation & \emph{leaky}-\ReLU \cite{leaky}, \texttt{PReLU} \cite{prelu}, \texttt{C-ReLU} \cite{crelu} & Vanishing Gradient \newline Dead Units\\
 Data manipulation & Modify layer output & \emph{Batch Normalization} \cite{batchnorm}  & Vanishing/Exploding Gradient\\                  
 \bottomrule
 \end{tabularx}
+% \end{tabular}
 \caption{Summary of techniques commonly used in deep learning to overcome issues like enhanced depth, vanishing/exploding gradient and dead neurons.}
 \label{tab:techniquesTable}
 \end{table*}
