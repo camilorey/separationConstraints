@@ -1,0 +1,112 @@
+\section{\ReLU Based Separation}\label{sec:separability}
+A classical feed-forward DNN $F$ can be formally approached as a multi-valued real function $F(\vec{x})$, that is created by composing a collection of vector \emph{layer} functions $\layer:\Real{n_k}\rightarrow\Real{n_{k+1}}$. The hidden layers are defined as the sum of collection of scalar functions dubbed as the \emph{units}: 
+\begin{equation}\label{eq:layer}
+\layer_k(\vec{x}) = \sum^{n_{k+1}}_{j=1} u_i^k(\vec{x}) \hat{\textbf{e}}_i
+\end{equation}
+that depend on a weight vector $\vec{w}_j^k\in\Real{n_k}$ and a bias parameter $b_j^k\in\mathbb{R}$ affinely, featuring a truncation on negative values:
+\begin{equation}\label{eq:unit}
+u_j^k(\vec{x}) = \max\{0,\vec{w}_j^k \cdot \vec{x} + b_j^k\}
+\end{equation}
+it is trivial to see that each unit defines a partition of the space $\Real{n_k}$ in two sets\footnote{Compare to the \emph{acceptance} and \emph{denial} zones in Rey-Torres et al. \cite{reyRiera2019ModellingClassificationReLU}}: the \emph{upper} part of unit $u_j^k$ and the \emph{lower} part of $u_j^k$:
+\begin{equation}\label{eq:upperAndLowerSets}
+\begin{array}{lcl}
+    upper(u_j^k) &=& \{\vec{x}:\vec{w}_j^k \cdot \vec{x} + b_j^k > 0\}\\\\
+    lower(u_j^k) &=& \{\vec{x}:\vec{w}_j^k \cdot \vec{x} + b_j^k\leq 0\}\\
+\end{array}
+\end{equation}
+We define $upper(u_j^k)$ as the positive half-space of the plane 
+\begin{equation}\label{eq:separatingPlane}
+    \Pi(\vec{w}_j^k,b_j^k) = 
+    \{ 
+     \vec{x}:\vec{w}_j^k\cdot\vec{x}+b_j^k =0
+    \}
+\end{equation}
+while $lower(u_j^k)$ corresponds to the closure of its negative half-space. Based on Rey-Torres et al. \cite{reyRiera2019ModellingClassificationReLU}, we define the \emph{affine} component of a layer function $\layer_k$ as the intersection of the upper parts of its units, and its zero set correspondingly:
+\begin{equation}\label{eq:affineCompAndZeroSet}
+\begin{array}{cc}
+    A(\layer_k) = \displaystyle\bigcap_{j=1}^{n_{k+1}}upper(u_j^k), &
+    Z(\layer_k) = \displaystyle\bigcap_{j=1}^{n_{k+1}}lower(u_j^k)\\
+    \end{array}
+\end{equation}
+both $A(\layer_k)$ and $Z(\layer_k)$ are convex open polytopes in $\Real{n_k}$ not necessarily bounded \cite{florenzano2001ConvexAnalysis,reyRiera2019ModellingClassificationReLU}, so that their complement is a closed non-convex set: the \emph{interzone} of $\layer_k$, that corresponds to the region of $\Real{n_k}$ that is neither forwarded affinely nor is mapped to zero \footnote{Compare to the \emph{ambiguity zone} of \cite{reyRiera2019ModellingClassificationReLU}}:
+\begin{equation}\label{eq:interzone}
+    I(\layer_k) = \Real{n_k}\setminus(A(\layer_k)\cup Z(\layer_k))
+\end{equation}
+an important fact to keep in mind with regards to \ReLU based DNN is that the output of layers features exclusively vectors with non-negative components. In this sense, $\layer_k$ maps $\Real{n_k}$ into the first hyperoctant of $\Real{n_{k+1}}$.
+Thus, $\layer_k$ defines a mapping into $\Real{n_{k+1}}_{+}$ such that: 
+\begin{itemize}
+    \item it maps the affine component into the \emph{interior} of $\Real{n_{k+1}}_{+}$: $$\layer_k[A(\layer_k)] = int(\Real{n_{k+1}}_{+})$$
+    \item it maps the zero-set exactly to the origin of $\Real{n_{k+1}}$:$$\layer_k[Z(\layer_k)] = \{\vec{0}\}$$
+    \item it maps the interzone to the boundary of $\Real{n_{k+1}}_{+}$: $$\layer_k[I(\layer_k)] = \partial\Real{n_{k+1}}_{+}$$
+\end{itemize}
+In addition, given a set $X\subset\Real{n}$ we can use these sets to define both \emph{dead} units and points, as follows. 
+\begin{remark}[Dead Items]
+In a given \ReLU-DNN $F:\Real{n}\rightarrow\Real{k}$, we say that the $j$-th unit of layer $\layer_k$, $u_j^k$ is \emph{dead} with regards to a set $X\subset\Real{n_k}$ if 
+\begin{equation}\label{eq:defDeadUnit}
+X\subset lower(u_j^k)
+\end{equation}
+on a similar note, we say that a point $\vec{x}\in X$ is \emph{dead} with regards to layer $\layer_k$ if 
+\begin{equation}
+    \vec{x}\in Z(\layer_k)
+\end{equation}
+Particularly, if $X\subset\Real{n}$, we say that point $\vec{x}\in X$ is \emph{dead} with regards to $F$ if its abstract representation for each layer is dead with regards to the each layer:
+\begin{equation}
+    (\forall k| 1 < k \leq D: \layer_{k-1}\circ\ldots\layer_1(\vec{x})\in Z(\layer_k))
+\end{equation}
+\end{remark}
+Set $Z(\layer_k)$ is paramount also in the \emph{vanishing} gradient problem. As Rey-Torres et al. \cite{reyRiera2019ModellingClassificationReLU} within section 2 show, the loss gradient (with regards to parameters) is zero over $Z(\layer_k)$ (compare to Equations 30, 33, 38 and 43). It follows also from Rey-Torres et al.  \cite{reyRiera2019ModellingClassificationReLU} that dead points (With regards to layers and DNN) produce zero-valued parameter gradients. 
+\\\\
+In this sense, non-zero back-propagation over \ReLU-DNN is --from the point of view of points-- dependent on that they are not dead. Meanwhile, from the point of view of units, non-zero back-propagation over them is only possible when the argument does not lie in their zero-set or worst exactly on the separating plane (notice the discontinuity described in Rey-Torres et al. \cite{reyRiera2019ModellingClassificationReLU}). Taking into account that points are mapped throughout the DNN conforming \emph{abstract representations}, a point may be dead with regards to a layer but die in the next. When whole sets are mapped through \ReLU-DNN, layers may \emph{degrade} them completely if they happen to be a subset of their zero-set.  
+\\\\
+In order to understand how units define dead points, we introduce the concept of a \emph{separating} unit with regards to an arbitrary set $X$. 
+\begin{definition}[Separating Unit]\label{def:separatingUnit}
+Given an arbitrary set $X\subset\Real{n_k}$, we say that the $j$-th unit on layer $k$, $u_j^k$ is able to \emph{separate} through $X$ if the following predicate is satisfied:
+\begin{equation}\label{eq:predicateWithUpper}
+    R_X(u_j^k)\equiv \emptyset \neq upper(u_j^k) \cap X \neq X 
+\end{equation}
+\end{definition}
+Since $upper(u_j^k)$ and $lower(u_j^k)$ compose a partition of $\Real{n_k}$ it is equivalent to say that 
+\begin{equation}\label{eq:predicateWithLower}
+    R_X(u_j^k)\equiv \emptyset \neq lower(u_j^k) \cap X \neq X 
+\end{equation}
+Thus, by construction, a separating unit cannot be dead, and if $R_X(u_j^k)$ is valid, $u_j^k$ cannot degrade set $X$ to a single point. 
+\\\\
+We can extend this definition of separability to layers as follows: 
+\begin{proposition}[Separating Layer]\label{pro:separatingLayer}
+We say that $\layer_k$ is able to \emph{separate} set $X$ if the predicate is also satisfied:
+\begin{equation}\label{eq:predicateOverLayer}
+    R_X(\layer) \equiv \emptyset \neq A(\layer)\cap X \neq X
+\end{equation}
+\end{proposition}
+In terms of pre-activations, $R(u_j^k)$ can be restated as follows:
+\begin{remark}\label{rmk:separationUsingGeometry}
+Given a \ReLU-DNN $F(\vec{x})$ of depth $D$, let $k$ such that $1\leq k \leq D$. If $u_j^k$ the $j$-th unit on $\layer_k$, $R_X(u_j^k)$ is equivalent to the following:
+\begin{equation}
+\displaystyle\max_{\vec{x}\in X}\{\vec{w}_j^k\cdot\vec{x}+b_j^k\} > 0
+\wedge 
+\displaystyle\min_{\vec{x}\in X}\{\vec{w}_j^k\cdot\vec{x}+b_j^k\} \leq 0
+\end{equation}
+\end{remark}
+To see that both conditions are equivalent a simple geometric argument will suffice. If $u_j^k$ separates through set $X$ (i.e. $R(u_j^k)$ is true), then $upper(u_j^k)\cap X\neq\emptyset$, thus 
+\begin{equation}
+    \max_{\vec{x}\in X}\{\vec{w}_j^k\cdot\vec{x}+b_j^k\} > 0
+\end{equation}
+in addition, since $upper(u_j^k)\cap X\neq X$, we must have that $lower(u_j^k)\neq \emptyset$, so that 
+\begin{equation}
+ \displaystyle\min_{\vec{x}\in X}\{\vec{w}_j^k\cdot\vec{x}+b_j^k\} \leq 0\\     
+\end{equation}
+conversely, assuming that both inequalities are satisfied, since $X$ is a discrete set, and we define 
+\begin{equation}
+\begin{array}{l}
+    \vec{x}_{+} = \displaystyle\argmax_{\vec{x}\in X}\{\vec{w}_j^k\cdot\vec{x}+b_j^k\}\\\\
+    \vec{x}_{-} = \displaystyle\argmin_{\vec{x}\in X}\{\vec{w}_j^k\cdot\vec{x}+b_j^k\}\\
+\end{array}
+\end{equation}
+we must have that 
+\begin{equation}
+\begin{array}{l}
+ \vec{x}_{+}\in upper(u_j^k)\\
+ \vec{x}_{-}\in lower(u_j^k)\\
+ \end{array}
+\end{equation} 
+thus, if the inequalities are satisfied then $R(u_j^k)$ is also. 
