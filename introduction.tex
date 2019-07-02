@@ -1,37 +1,30 @@
 \section{Introduction}\label{sec:introduction}
-
-% Párrafo introductorio
-The success of Deep Learning has traditionally been linked to its ability to learn \emph{abstract representations} of data using function composition\cite{LeCun06atutorial}. These functions (i.e. the \emph{layers}) decompose and solve the problem in \emph{parts} \cite{resnetSubtree} profiting their feed-forward structure \cite{backprop}. However, the deeper the network, the more susceptible it becomes to issues affecting backpropagation as a learning strategy \cite{backprop} (e.g. the vanishing gradient problem, \cite{vanishing1,vanishing2} the exploding gradient \cite{exploding} and the dead unit problem \cite{leaky,whyreludie,whenneuronsfail}) . 
+The success of Deep Learning has been linked to its ability to learn \emph{abstract representations} from input data in a hierarchical fashion  \cite{LeCun06atutorial,ramachandranEtAl2017SearchingForActivationFunctions}, using Deep Neural Networks (DNN for short). However, depth is also instrumental in various DNN \emph{issues} like the \emph{vanishing gradient} as presented in \cite{vanishing1} or \cite{vanishing2}; the \emph{exploding gradient} as presented in \cite{exploding}; the \emph{dead unit problem} as presented in \cite{leaky},\cite{whyreludie} or \cite{whenneuronsfail}; or the \emph{degradation problem} as presented in \cite{resnet}. 
 \\\\
 % Problema general
-There are \emph{essentially} two families of methods to address these issues: \emph{architectural modifications} to the network and input data \emph{manipulation}. Examples of architectural modifications include (1) layer-width increase as done in \cite{wideresnet,inceptionv1}; (2) feed-forward structure network modification, as done in ResNets \cite{resnet} or DenseNets \cite{densenet}; (3) unit based alterations (of the their non-linearity or activation) as done in \emph{leaky}-\ReLU \cite{leaky} or \texttt{PReLU} \cite{prelu}). Meanwhile, the most commonly used data manipulation technique is \emph{data normalization} techniques on the output of layers as done under \emph{batch normalization} \cite{batchnorm}.  
+We claim we can categorize existing methods to address these issues in two families: \emph{architectural modifications} to the DNN and \emph{data manipulation}. Examples of architectural modifications include (1) layer-width increase as done in \cite{wideresnet,inceptionv1}; (2) additional connections (as done in ResNets \cite{resnet} or DenseNets \cite{densenet}); (3) unit augmentation (as done in \emph{leaky}-\ReLU \cite{leaky} or \texttt{PReLU} \cite{prelu}). Meanwhile, the most commonly used data manipulation technique is \emph{data normalization} on the output of layers as done under \emph{batch normalization} \cite{batchnorm}.  
 \\\\
-For example, layer-width increases reduces the chance for \emph{useless} units (e.g. dead or \emph{redundant}) per layer. However, such measures increase the computational cost of the network and the dimensionality of the problem, hampering convergence \cite{cursedim} and taking a toll on speed. Meanwhile, modifying network connectivity may prove beneficial to tackle the vanishing gradient \cite{ladder,nin,highway}. This occurs however, at the expense of burdening designers with additional \emph{architectural} decisions (e.g. which connection to add or alter) taking a toll in parameter and hyper-parameter number as presented for example in \cite{densenet}. 
+%occur amidst several geometric undertow \todo{we claim that these issues ocurr at geometric level, have a geometric background/interpretation}, that when unamanged, corrupt \todo{hinder} back-propagation. 
+
+In the case of \ReLU based DNN, a geometric outlook allows us to conjecture on these issues differently. Under the setting defined by Rey-Torres et al. in \cite{reyRiera2019ModellingClassificationReLU},  gradient issues (vanishing and exploding) depend on \emph{dying-items} (e.g. dead units or points). In turn, dying items can be defined by  \emph{incorrect} positioning of the hyper-planes from the pre-activation of \ReLU units (\emph{relative} to the dataset). The reader can review our presentation of our rationale in Section \ref{sec:separability} on \emph{Separability}. 
 \\\\
-In turn, unit activation modification intends to ensure non-zero gradient back-propagation by (1) modifying unit functions to avoid zero truncation as done in \cite{leaky}, \cite{prelu}, \cite{elu} or \cite{selu} (\ReLU modifications) or modifying unit output \cite{crelu}. With batch normalization \cite{batchnorm}, several drawbacks have been described in works like \cite{batchrenorm} and \cite{batchnormGradientExplosion}: decreased performance in testing due to non-matching statistical parameters between training and testing (e.g. mean value and variance or non-i.i.d. minibatches or small batch sizes \cite{batchrenorm}; and exploding gradients limiting the depth of the network \cite{batchnormGradientExplosion}.
+Thus, we can correct plane positioning by enforcing \emph{separation constraints} (\SepConstraint for short) as detailed in Section \ref{sec:constraint}) titled \emph{Separation Constraints}. Indeed, by targeting specifically the dead unit problem (defining the unit-based separation constraint \SepUnit); and the dead point problem (using a point-based separation constraint \SepPoint). Intuitively, \SepUnit constraints aim to secure unit pre-activation hyperplanes that \emph{cut} throughout the dataset (as detailed in Section \ref{sec:separability}). Meanwhile,  \SepPoint aims to secure the existence of units with opposing pre-activation values at each dataset point. 
 \\\\
-% Problema específico (Pregunta del paper)
-Since existing methods require either computational expenditure and add arbitrary complexity to the architecture design, or simply entail limit network performance, we wonder whether we can train deeper networks without relying in any of those techniques. This imply using the minimum width possible, removing any additional connections or activations, and using no normalization. 
-\\\\
-We argue that those problems can be tackled at unit level, since they stem from the affine/dead unit problem. In this sense, we argue that 
-affine unit \emph{downgrades} the unit to an redundant transform (since it can be carried out by the following unit), \emph{dead} units compromise the \emph{representative} ability of the network.
-\\\\
-While dead neurons have been traditionally accepted as a minor issue for DNN related phenomena, affine units are not usually seen as hazardous are also not devoid of caveats.
-\\\\
-% Solución propuesta (Respuesta a la pregunta)
-We propose to achieve that by introducing a family of constraints which increase the separation performed by each of the units on the data. We demonstrate that doing so helps in avoiding trivial failure modes like dead or linear units. Additionaly, enables the use of zero initialization. The only added cost is an additional loss per layer and the inclusion of an additional hyperparameter. 
-\\\\
-% Estructura del paper
-This paper is organized as follows: section \ref{sec:separability} motivates the importance of enforcing separation in the units), after that section presents the \ref{sec:constraint} the actual constraints that we impose on the network to do so. Section \ref{sec:experiments} provides with experimental interpretation of the effect of the constraints and finally section \ref{sec:conclusions} closes the paper with the main conclusions.
+We test our proposal in a series of experiments (Section \ref{sec:experiments}) to showcase the effect of applying \emph{Separation constraints}. We find an increase on network depth using the same width than Batch Normalization \cite{batchnorm}, effectively reducing the dependency between depth and width as introduced in \cite{simpnet} and \cite{densenet}.  
 
 \begin{table*}[h!]
-    \centering
-\begin{tabular}{@{}llll@{}}
+\centering
+\begin{tabularx}{\textwidth}{lXlXlXlX}
 \toprule
-Family                         & Method                                                             & Examples                                                                                                                                                                                                                                                   & Intended issues                                                                \\ \midrule
-\multirow{3}{*}{Architectural} & Width increase                                                     & \begin{tabular}[c]{@{}l@{}}Wide \textbackslash{}texttt\{ResNet\} \textbackslash{}cite\{wideresnet\}\\ \textbackslash{}texttt\{Inception\} \textbackslash{}cite\{inceptionv1\}\end{tabular}                                                                 & \begin{tabular}[c]{@{}l@{}}Vanishing Gradient\\ Increase Depth\end{tabular}    \\
-                               & \begin{tabular}[c]{@{}l@{}}Connection \\ modification\end{tabular} & \begin{tabular}[c]{@{}l@{}}\textbackslash{}texttt\{ResNet\} \textbackslash{}cite\{resnet\} \\ \textbackslash{}texttt\{DenseNet\} \textbackslash{}cite\{densenet\}\end{tabular}                                                                             & \begin{tabular}[c]{@{}l@{}}Vanishing Gradient\\ \\ Increase Depth\end{tabular} \\
-                               & Unit Alteration                                                    & \begin{tabular}[c]{@{}l@{}}\textbackslash{}emph\{leaky\}-\textbackslash{}ReLU \textbackslash{}cite\{leaky\} \\ \textbackslash{}texttt\{PReLU\} \textbackslash{}cite\{prelu\}\\ \textbackslash{}texttt\{C-ReLU\} \textbackslash{}cite\{crelu\}\end{tabular} & \begin{tabular}[c]{@{}l@{}}Vanishing Gradient\\ Dead Neurons\end{tabular}      \\
-Data Manipulation              & Modify layer output                                                & \textbackslash{}emph\{batch normalization\} \textbackslash{}cite\{batchnorm\}                                                                                                                                                                              & Exploding Gradient                                                             \\ \bottomrule
-\end{tabular}
+Family & Method & Examples & Intended issues\\ 
+\midrule
+Architectural & Width increase & \texttt{Wide-ResNet} \cite{wideresnet}, \texttt{Inception} \cite{inceptionv1} & Vanishing Gradient \newlineIncrease Depth\\
+& Additional connections & \texttt{ResNet} \cite{resnet}, \texttt{DenseNet}\cite{densenet} & Vanishing Gradient \newline Increase Depth \\
+& Unit augmentation & \emph{leaky}-\ReLU \cite{leaky}, \texttt{PReLU} \cite{prelu}, \texttt{C-ReLU} \cite{crelu} & Vanishing Gradient \newline Dead Units\\
+Data manipulation & Modify layer output & \emph{Batch Normalization} \cite{batchnorm}  & Vanishing/Exploding Gradient\\                  
+\bottomrule
+\end{tabularx}
+\caption{Summary of techniques commonly used in deep learning to overcome issues like enhanced depth, vanishing/exploding gradient and dead neurons.}
+\label{tab:techniquesTable}
 \end{table*}
+
