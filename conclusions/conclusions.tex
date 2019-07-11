@@ -1,16 +1,16 @@
 \section{Conclusions}\label{sec:conclusions}
+In terms of performance of the separation constraint in comparison to batchnorm as an enhancement to \ReLU networks, we find common ground with the thoughts presented by Hasanpour et al. in the \texttt{SimpNet} paper \cite{simpnet} with regards to an a-priori relation between depth and width. While Hasnpout et al. suggest that as networks grow deeper, so should the width. We provide an interpretation of it. For a rectangular network of fixed with $W$ and depth $D$, let $A_{F,X}(W,D)$ denote the accuracy reached by network $F$ (in the sense of section \ref{sec:separability}) over dataset $X$. Then the possible configurations
+\\\\
+We would like to remark that the Separation constraint are effective either using fully-connected or convolutional layers, see Section \ref{sec:experiments}.
+\\\\
+We find that although the Separation constraints enable to train deeper networks, this improvement is not absolute and eventually it fails. However, it is able to improve Batch Normalization by tranining using the minimum width twice as deep. Additionally, we find experimentally that it also induces unstabilities during training which display interesting properties like increasingly complex but smoother boundaries which indeed require of further research.
+\\\\
+However, further inquiry into the interaction between constraint loss and main loss beyond parameter $\lambda$ is needed, alongside with experiments regarding other losses besides cross-entropy. In addition,  the use of the separation constraints in other types of layers such as LSTM \cite{lstm} or transformers \cite{transformer}\cite{transformer2} is yet to be performed, in order to explore other types of tasks like regression, unsupervised learning \cite{embedding}, graph \cite{graph} or generation \cite{gan,vae}. Morever, more challenging datasets are definitely in need of revision.
+\\\\
 
-We claim that there is a difference between non-zero and \emph{useful} activations. As presented in Figure \ref{fig:moonsReLUBN}, \ReLUBN induces a solution that maps the dataset non-trivially throughout the network. However, its performance on the \texttt{MOONS} dataset is inferior to our proposal (63\% of accuracy as presented in Table \ref{tab:moons} against any constraint based test over 90\%). Moreover, comparing the output graph of \ReLUBN (Figure \ref{fig:moonsReLUBNOutput}) with our findings (Figures \ref{fig:moonsUnitwiseOutput}, \ref{fig:moonsPointwiseOutput}. \ref{fig:moonsLayerwiseOutput} and \ref{fig:moonsUnitpointwiseOutput}) the reader can observe that the separation reached separates components of the \texttt{MOONS} dataset in intuitive manners.  
-\\\\
-However, further inquiry into the interaction between constraint loss and main loss beyond parameter $\lambda$ is needed, alongside with experiments regarding other loss functionals besides the cross-entropy loss. In addition,  the use of the separation constraints in other types of layers such as LSTM \cite{lstm} or transformers \cite{transformer}\cite{transformer2} is yet to be performed, in order to explore other types of tasks like regression, unsupervised learning \cite{embedding}, graph \cite{graph} or generation \cite{gan,vae}. Morever, more challenging datasets are definitely in need of revision.
-\\\\
 % 4.1
-While the separation constraints prevent the vanishing gradient, the \emph{exploding gradient} remains at large. Notice that constraint introduction places \emph{lower bounds} on the magnitude of the pre-activation values, but does not place upper bounds. This could be solved introducing additional constraints or limiting the norms of weight vectors. 
-\\\\
-We explore the use of separation constraint (\SepUnitPoint in this case) to enable zero initialization with good results, (recall subsection \ref{subsec:zero}). In order to make it work, we had to introduce to break symmetry in the weights, in the form of Annealed Dropout \cite{dropoutAnnealing}. Since our objective in this matter (along with the entire paper) was simplicity, the use of Dropout partially defeats this purpose by moving the same stochasticity that we were removing from intialization into training. Nevertheless, our \emph{Ansatz} is that an initialization that is based on the data (which is the result of using the constraint plus Dropout) must be superior to any random initialization which is only based in features like gradient magnitude or inputs and outputs. Further research in this matter is hereby required.
-\\\\
-% World peace
-We hope that the geometric framework developed in this work will help us to delve deeper into the intricacies of deep learning so even further simplification is achieved. 
+While the separation constraints prevent the vanishing gradient, the \emph{exploding gradient} remains at large. Notice that constraint introduction places \emph{lower bounds} on the magnitude of the pre-activation values, but does not place upper bounds. This could be solved introducing additional constraints forcing them. 
+
 
 
 
