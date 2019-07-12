@@ -16,31 +16,54 @@ CIFAR-10 & 1-40  & 10    \\ \bottomrule
 \caption{}\label{tab:grids}
 \end{table}
 
-We the networks were optimized using Adam \cite{adam}. We used a learning rate of $0.01$ for $10000$ epochs and a batch size of $85$ for \moons and a learning rate of $0.001$ for $50$ epochs with a batch size of $1024$ for both \texttt{MNIST} and \texttt{CIFAR-10}. We used an Glorot uniform initialization scheme \cite{Glorot10Initialization} (by default on \texttt{Keras}). We used $\lambda_{MOONS}=10^-4$ $\lambda_{MNIST}=\lambda_{CIFAR}=10^{-8}$ for the Separation Constraints. Our experiments were conducted using \texttt{Keras} \cite{keras} and \texttt{TensorFlow} \cite{tensorflow}, using a random seed with an arbitrary value of $10$. 
+All the networks used were optimized using Adam \cite{adam}. More specifically, for the \moons dataset we used a learning rate of $0.01$ for $10000$ epochs and a batch size of $85$. Meanwhile, for both \texttt{MNIST} and \texttt{CIFAR-10} we used a learning rate of $0.0001$ for $50$ epochs and a batch size of $1024$. We used an Glorot uniform initialization scheme \cite{Glorot10Initialization} (by default on \texttt{Keras}). We used $\lambda_{MOONS}=10^-4$ $\lambda_{MNIST}=\lambda_{CIFAR}=10^{-8}$ for the Separation Constraints. Our experiments were conducted using \texttt{Keras} \cite{keras} and \texttt{TensorFlow} \cite{tensorflow}, fixing the random seed to an arbitrary value of $10$. 
 \\\\
-Graphical summaries of our findings are provided for the reader in all Figures presented in this section. An insidious question that we wish to address throughout our presentation is whether
-separation constraints allow us to train \emph{deeper} \emph{rectangular networks}. Our findings are based on a comparison of our proposal to a \emph{baseline} and a \emph{competitor}:  basic \ReLU networks (i.e. the \emph{vanilla} version) and batch-norm as described in \cite{batchnorm}. More specifically, we compare baseline and competitor against three versions of the separating constraints: unit-based separation, (as presented in subsection \ref{subsec:sepUnit}), point-based separation (as detailed in subsection \ref{subsec:sepPoint}) and the combination of both that we denote by \SepUnitPoint. 
+Our findings are based on a comparison of our proposal to feed-fordward \ReLU networks \cite{relu} and Batch Normalization as described in \cite{batchnorm}. More specifically, we compare them against three different versions of the Separating Constraints: unit-based \SepUnit (see Subsection \ref{subsec:sepUnit}), point-based \SepPoint (see Subsection \ref{subsec:sepPoint}) and the combination of both that we denote by \SepUnitPoint.
 \\\\
-Figure \ref{fig:moons_grid} shows how training deeper networks requires a layer width-increase, as stated by Hasanpour et al. \cite{simpnet} or Huang et al. \cite{densenet}. This is suggested by beige colored region in \ref{fig:moons_grid_relubn} for \ReLUBN, suggesting a relation of the form
+
+
+% WIDTH VS DEPTH STARTS HERE
+Figure \ref{fig:moons_grid} shows how training deeper networks requires an increment on the layer width, as stated by Hasanpour et al. \cite{simpnet} or Huang et al. \cite{densenet}. This is suggested by beige colored region in \ref{fig:moons_grid_relubn} for \ReLUBN. Particularly, we advocate that for each depth $D$, there exists a particular width $W_{min}$, for which maximal accuracy is obtained at depth $D$. We propose the following definition for $W_{min}$:
 \begin{equation}\label{eq:dependencyWidthDepth}
-    D \leq max(\alpha{W} + k, 0) + W_{min}
+ W_min(D) = 
+ \begin{cases}
+ \hat{W}_{min}, & D\leq \hat{D}\\
+ \hat{W}_{min}+\max\{0,h(D)-\hat{D}\}, & D\leq \hat{D}\\
+ \end{cases}
 \end{equation}
-where  $w_min>1$. Our experimentation suggests that $W_{min}=3$ However, the relation, notice how the minimum width required to succesfully train networks starts decreasing when , occuring at approximately $D=15$ for \ReLUBN (Figure \ref{fig:moons_grid_relubn}, while for \SepUnitPoint (Figure \ref{fig:moons_grid_up}), accuracy is maintained up to $D=40$ (more than twice the value for \ReLUBN). We identify this linear increase on the width requirements like the use of the width-increase strategy, which hints that \SepPoint is able to avoiding to use it further than \ReLUBN.
+for $h:\mathbb{R}\rightarrow\mathbb{R}$ a non-negative, monotonically increasing function such that $h(0)\geq 0$. 
+Here, we suggest that $\hat{D}$ is the depth at which the width-increase starts being required. In this sense, $\hat{W}_{min}$ can be understood as the minimum width for which maximal accuracy can be obtained. 
+\\\\
+In this sense, for $D\geq \hat{D}$, $\Delta{W} = W-W_{min}(D)$ quantifies the number of additional units per-layer that do not contribute in matters of accuracy formation: they are devoted to find a combination of hyper-planes to \emph{enable} back-propagation. On the one hand, this is interpretable in terms of the sets defined on section \ref{sec:separability} (i.e. $\Delta{W}$ additional units that ensure that $I(\layer)\neq\emptyset$), on the other we suggest that larger values of $\hat{D}$ delay the need for the width-increase strategy. In addition, we claim that $\hat{W}_{min}$ is \emph{dataset dependent}, whereas $\hat{D}$ is related with its well-posedness of the architecture of the network with regards to back-propagation.
+\\\\
+Experimentally, we observe that by using \SepUnitPoint the value of $\hat{D}$ is more than doubled than by using \ReLUBN ($40$ vs $15$, as Table \ref{tab:dependency}). In this sense, our claim  that separation constraints enables to train deeper networks with the same width, is verified (as showcased by Figures \ref{fig:moons_grid_u}, \ref{fig:moons_grid_p} and \ref{fig:moons_grid_up}). We provide the reader with Table \ref{tab:dependency} to summarize our findings with regards to $\hat{D}$ and $W_{min}$ in the scope of our experimentation. 
+\\\\
 
+\begin{table}[]
+\begin{tabular}{@{}lll@{}}
+\toprule
+        & $\hat{W_{min}}$ & $\hat{D}$ \\ \midrule
+\ReLU   & 3         & 4             \\
+\ReLUBN & 3         & 15            \\
+\SepUnit   & 2-3       & 10            \\
+\SepPoint   & 3-4       & 45            \\
+\SepUnitPoint  & 2-3       & 40            \\ \bottomrule
+\end{tabular}
+\caption{Summary of minimum widths and depths related to maximal accuracy obtained comparing \ReLUBN and the different versions of \SepConstraint, trained using the \moons dataset, a learning rate of $0.01$ and $\lambda = 0.0001$ for all \SepConstraint variants.}\label{tab:dependency}
+\end{table}
+When observing the differences between variants of \SepConstraint we observe that \SepUnit follows a pattern similar to \ReLUBN, but avoids failures (see the lack of black boxes in Figure \ref{fig:moons_grid_u} in contrast to Figure \ref{fig:moons_grid_relubn}, particularly when $D\geq 15$).  
 \\\\
-All of our versions of separation constraints outperform consistently both \ReLU and \ReLUBN, as we can see in Table \ref{tab:moons}. Indeed, in Figures \ref{fig:moons_grid_u}, \ref{fig:moons_grid_p} and \ref{fig:moons_grid_up} we see how the use of the separation constraints enable to use deeper networks with the same width. 
+Meanwhile, \SepPoint (Figure \ref{fig:moons_grid_p}) possesses a larger value of $\hat{D}$  than both \ReLUBN and \SepUnit (see second column of Table \ref{tab:dependency}). However, it suffers from the same abrupt breakdown as \ReLU but with an small successful area within the values of $W=5$ and $W=10$ and $D\geq 100$. 
 \\\\
-More so, Figures \ref{fig:moons_grid_u},\ref{fig:moons_grid_p} and \ref{fig:moons_grid_up} show us that the minimum width required to train successfully (with a $95+\%$ accuracy) can be done  starting decreasing from $3$ units per layer approximately at depth $15$ for \ReLUBN (Figure \ref{fig:moons_grid_relubn}, whereas \SepUnitPoint (Figure \ref{fig:moons_grid_up}) is able to maintain up to $40$ layers deep, more than twice. We identify this linear increase on the width requirements like the use of the width-increase strategy, which hints that \SepPoint is able to avoiding to use it further than \ReLUBN.
+Finally, integrating \SepUnit and \SepPoint to use \SepUnitPoint (Figure \ref{fig:moons_grid_up}) improves both accuracy, minimizes the value of $W_{min}$ (to the level of\SepUnit) and goes in terms of $\hat{D}$ beyond \SepPoint. Suggesting that unit-based separation and point-based separation is mutually beneficial.
 \\\\
-Regarding the differences among Separation constraint variations, \SepUnit is the one which is able to train deeper networks (Figure \ref{fig:moons_grid_u}, although at lower accuracy and showing the same linear degradation after layer $14$ as \ReLUBN (Figure \ref{fig:moons_grid_relubn}), like an improved but not perfect version of it. \SepPoint (Figure \ref{fig:moons_grid_p}) in the other hand it is able to maintain the minimum width longer than both \ReLUBN and \SepUnit, but it suffers from the same abrupt breakdown as \ReLU but with an small successful area around width $4$. Finally, the combination of both, \SepUnitPoint (Figure \ref{fig:moons_grid_up}) allows to improve both the accuracy and minimum width figures of both \SepUnit and \SepPoint, hinting that their effect during the training is enhanced by each other.
+The constraint formulation also proves beneficial when on convolutional networks, as tested using other popular datasets (in our case \texttt{MNIST} and \texttt{CIFAR-10}). As Figure \ref{fig:mnist_grid} shows a similar behaviour to the \moons dataset (Figure\ref{fig:moons_grid}): \ReLU breaks down after few layers, \ReLUBN  delays the degradation of accuracy (has a larger $\hat{D}$ value), while \SepUnitPoint remains functional regardless of $D$. 
 \\\\
-The same effect seen with a fully-connected network applied to a toy dataset such as \moons can be seen in other common vision datasets such as MNIST \cite{mnist} or CIFAR-10 \cite{cifar10} when using convolutional networks. Figure \ref{fig:mnist_grid} shows the same behaviour from the \moons dataset (Figure\ref{fig:moons_grid}), where \ReLU breaks down after few layers, \ReLUBN holds it better but eventually starts degradating whereas \SepUnitPoint is able to work equally well disregarding the depth used. In the case of CIFAR-10, the results (Table \ref{tab:cifar10}) show how with few layers \ReLU and \ReLUBN match or improve \SepUnitPoint but after adding some layers it gets even until \SepUnitPoint surpasses them.
-
+Similarly, our experiments with the \texttt{CIFAR-10} dataset (as presented on Table \ref{tab:cifar10}) behaves a little bit differently. Though the same accuracy degradation observed for \moons and \texttt{MNIST} while \SepUnitPoint allows for a larger value of $\hat{D}$, accuracies reached are not dramatically improved by the introduction of separation constraints. However, it is during the validation phase, that \SepConstraint maintains accuracy levels, while \ReLUBN degrades. However, we blame these decreased accuracy levels to a limited choice of $W$ inferior to $\hat{W}_{min}$.  
 
 \input{experiments/moon_grid.tex}
 
 \input{experiments/mnist_grid.tex}
-
 
 \begin{table*}
 \input{experiments/cifar10_acc.tex}

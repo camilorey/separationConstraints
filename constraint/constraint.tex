@@ -1,16 +1,12 @@
 \section{Separating constraints}\label{sec:constraint}
-Conceptually, we wish to enforce \emph{separability} based on the definition provided in equations \ref{eq:predicateWithUpper} and \ref{eq:pointPredicate}. However, set theoretic functions are not differentiable \cite{Glorot10Initialization,lecun2015DeepLearningBig,munkres2000Topology}. 
-\\\\
-To bridge that gap, we will make an adaptation inspired on the technique of Support Vector Machines as presented for example in  \cite{Burges1998TutorialOnSVMForPatternRecognition} or \cite{Hearst1998SupportVectorMachines}. 
-\\\\\
-That is, given a fixed choice of weight vector  $\vec{w}\in\Real{n}$ and bias $b\in\mathbb{R}$, we define slack variables $\xi^{+},\xi^{-}\geq 0$ for a dataset $\mathcal{T}$ (via set $X$) as a pair of numbers such that
+Conceptually, we wish to enforce \emph{separability} based on the definition provided in equations \ref{eq:predicateWithUpper} and \ref{eq:pointPredicate}. However, set theoretic functions are not differentiable \cite{Glorot10Initialization,lecun2015DeepLearningBig,munkres2000Topology}. Thus, we can make use of the characterization of separability using pre-activations as done in Equation \ref{eq:preactivationCharacterization}. That is, given a fixed choice of weight vector  $\vec{w}\in\Real{n}$ and bias $b\in\mathbb{R}$, we define slack variables $\xi^{+},\xi^{-}\geq 0$ for a dataset $\mathcal{T}$ (via set $X$) as a pair of numbers such that
 \begin{equation}\label{eq:basicConstraintFormulation}
 \begin{array}{lcl}
     \max\{\vec{w}\cdot\vec{x}+b|\vec{x}\in X\}\geq 1-\xi^{+}\\
     \min\{\vec{w}\cdot\vec{x}+b|\vec{x}\in X\}\leq -1+\xi^{-}\\
 \end{array}
 \end{equation}
-This slack variables can be added to the optimization problem \ref{eq:generalOptimizationProblem} as a multiobjective optimization problem using a technique known as scalarization \cite{boyd} (equation \ref{eq:marginOptimizationProblem}) as
+This slack variables can be added to the optimization problem defined in Equation \ref{eq:basicConstraintFormulation}. More specifically, treat it as a multiobjective optimization problem using a technique known as \emph{scalarization} \cite{boyd} (equation \ref{eq:marginOptimizationProblem}) as
 \begin{equation}\label{eq:marginOptimizationProblem}
 \argmin_{\theta,\xi^{+},\xi^{-}} \mathcal{L}(\mathcal{T},\theta) + \lambda g(\xi^{+},\xi^{-})
 \end{equation}
@@ -33,7 +29,8 @@ Additionally, since introducing those constraints imply the the value of the wei
 What remains of this section is to choose the object of the constraints among the different structures of a network: by unit and by point.
 
 \subsection{Unit based separation constraints \SepUnit}\label{subsec:sepUnit}
-In order to avoid the presence of dead units (recall Equation \ref{eq:defDeadUnit}, we introduce the \emph{Unit Based Separation Constraint} \SepUnit. Within a \ReLU DNN $F$, choose a unit $u_j^k$ in layer $\layer_k:\Real{n_k}\rightarrow\Real{m_k}$. This unit will be defined univocally by its parameters:
+
+In order to avoid the presence of dead units (recall Equation \ref{eq:defDeadUnit} on Remark \ref{remark:deadItems}), we introduce the \emph{Unit Based Separation Constraint} \SepUnit. Within a \ReLU DNN $F$, choose a unit $u_j^k$ in layer $\layer_k:\Real{n_k}\rightarrow\Real{m_k}$. This unit will be defined univocally by its parameters:
 \begin{equation}\label{eq:unitSepParameterWriting}
     u^k_j(\vec{x}) = u(\vec{x};\vec{w}^k_j,b^k_j)
 \end{equation}
@@ -52,15 +49,13 @@ so that at a global scale we will have to add to the loss functional a term of t
 \begin{equation}\label{eq:constraintLossForUnitSeparation}
     G = \sum_{k=1}^{D}\sum_{j=1}^{m_k}\rho_{jk}\xi^{+}_{jk}+(1-\rho_{jk})\xi^{-}_{jk}
 \end{equation}
-We name this the \emph{separation by unit} formulation \SepUnit. Notice that this constraint does not prevent from dead points, this is points that belong to the intersection of the lower sets of the units of a layer. That is, if $u_1,u_2,\ldots,u_m$ are the units of a layer $\layer:\Real{n}\rightarrow\Real{m}$, we say that $\vec{x}\in\Real{n}$ is \emph{dead} with regards to $\layer$  if
-
-\begin{equation}\label{eq:deadPoint}
- \vec{x}\in \displaystyle\cap_{j=1})^n lower(u_j)
-\end{equation}
+We name this the \emph{Unit-based} Separation formulation \SepUnit. 
 
 \subsection{Point Based Separation \SepPoint}\label{subsec:sepPoint}
 
-In order to avoid the presence of dead points (recall Equation \ref{eq:deadPoint}, we introduce the \emph{Point Based Separation Constraint} \SepPoint. Moreover, since in practice the entire dataset is not used for training, but \emph{batches} of it \cite{LeCun06atutorial}, a small batch size may cause inconsistencies within the training process. Under our formulation,  these issues would translate to unit penalization for not fulfilling \SepUnit on a \emph{per-batch} basis (due to the fact that the points that comply with the constraints may lie outside the batch).  Thus, it is desirable to make our constraint formulation independent of batch choice by focusing on the values that constraints take on specific points. 
+In order to avoid the presence of dead points (recall again Remark \ref{remark:deadItems} and definition \ref{def:separatingPoint}), we introduce a \emph{Point Based Separation} Constraint \SepPoint. In practice the entire dataset is not used for training, but \emph{batches} of it \cite{LeCun06atutorial}. And small batch size may cause inconsistencies within the training process.
+
+Under our formulation,  these issues would translate to unit penalization for not fulfilling \SepUnit on a \emph{per-batch} basis (due to the fact that the points that comply with the constraints may lie outside the batch).  Thus, it is desirable to make our constraint formulation independent of batch choice by focusing on the values that constraints take on specific points. 
 \\\\
 That is, we will constraint the slacks $\xi^{\pm}$ to each point on the batch. That is given $\vec{x}\in X$, and $u_1,\ldots,u_m$ unit functions in a layer, we define slack variables $\xi^{-}_{xk},\xi^{+}_{xk}\geq 0$ in the context of the following constraints:
 \begin{equation}\label{eq:pointSeparationConstraint}
