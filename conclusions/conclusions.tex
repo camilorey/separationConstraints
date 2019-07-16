@@ -1,31 +1,27 @@
 \section{Conclusions}\label{sec:conclusions}
 Through the \SepConstraint family, we have shown that deeper networks can be trained without resorting to any architectural modifications or data manipulations. Moreover, it can be done to surpass Batch Normalization. The lesson to be learned here is that the training of deeper networks can be achieved \emph{accomodating} the network for data, rather than manipulating it.
 \\\\
-We interpret our results in Figure \ref{fig:moons_grid} through Equation \ref{eq:dependencyWidthDepth}, as a conjecture over the relation between width and depth. In our proposal, $\hat{D}$ plays a fundamental role in the development of maximal accuracy: (1) for depths lower than $\hat{D}$, the minimum width required to reach maximal accuracy is constant, exactly $\hat{W}_{min}$. We conjecture that this value is determined by the complexity of the dataset; (2) meanwhile when  $D\geq \hat{D}$, it is required to chose $W \geq \hat{W}_{min}$, to ensure maximal accuracy. This is consistent with the claim of that deeper networks require wider layers, see Hassanpour et Al. \cite{simpnet} or Huang et Al. \cite{densenet}. As shown in Table \ref{tab:dependency}, \SepUnitPoint displays a $\hat{D}$ more than twice the value of \ReLUBN. In turn, we can train networks more than twice as deep with $\hat{W}_{min}$ (minimum width) than \ReLUBN. 
+We interpret our results in Figure \ref{fig:moons_grid} through Equation \ref{eq:dependencyWidthDepth}, as a conjecture over the relation between width and depth. In our proposal, $\hat{D}$ plays a fundamental role in the development of maximal accuracy: (1) for depths lower than $\hat{D}$, the minimum width required to reach maximal accuracy is constant, exactly $\hat{W}_{min}$. We conjecture that this value is determined by the complexity of the dataset; (2) meanwhile when  $D\geq \hat{D}$, it is required to chose $W \geq \hat{W}_{min}$, to ensure maximal accuracy. This is consistent with the claim of that deeper networks require wider layers (see Hassanpour et Al. \cite{simpnet} or Huang et Al. \cite{densenet}). As shown in Table \ref{tab:dependency}, \SepUnitPoint displays a $\hat{D}$ more than twice the value of \ReLUBN. In turn, we can train networks more than twice as deep with $\hat{W}_{min}$ (minimum width) than \ReLUBN. 
 \\\\
-We conjecture that this phenomena has a geometrical background. The probability of point belonging into the zero set of an unit ($Z(u)$, recall Equation \ref{eq:affineCompAndZeroSet}) ) is equal to the probability of sampling a point from an the distribution of the dataset, and sampling an hyper-plane according to a distribution, a process carried during initialization, follows a Bernoulli distribution.
-
+We conjecture that this phenomena has a geometrical background, and a reading from probability. The probability that a point $\vec{x}$ point belongs to the zero set of an unit ($Z(u)$ (recall Equation \ref{eq:affineCompAndZeroSet}) is equal to the probability of sampling a point from a distribution of the dataset, and also sampling a hyper-plane according to a distribution. If this process (carried during initialization) follows a Bernoulli distribution of the form:
 \begin{equation}
-    P(Z(u), x) \sim \text{Bernoulli}
+    P(Z(u), \vec{x}) \sim \text{Bernoulli}
     \label{eq:probabilityUnit}
 \end{equation}
-
-Since layers are composed of multiple units whose hyper-planes are sampled independently, so the probability of point belonging to $Z(\layer)$ (the zero of a layer, recall Equation \ref{eq:affineCompAndZeroSet}) is the probability of all the hyper-planes not facing the point.
-
+then the probability that a point belongs to $Z(\layer)$ (the zero of a layer, recall Equation \ref{eq:affineCompAndZeroSet}) is equal to the probability that the point is in the negative hemi-space of \emph{all} hyper-planes in a layer, given that layers are composed of multiple units that constitute independently sampled hyper-planes. Thus,
 \begin{equation}
-    P(Z(\layer), x) = P(Z(u), x)^W
-\end{equation}
-
-Where $W$ is the width of the layer. This probability decreases with $W$, which would explain why increasing width allows to train deeper networks. Finally, the probability of a point dying at some layer is also independent among layers, so it equals to the sum of the probabilities of the layers.
-
-\begin{equation}
-    P(Z(F), x) = \sum_{i=1}^D P(Z(\layer_i), x)
-\end{equation}
-
-This would explain why the deeper networks fail to train unless the width is increased. Alternatively, \SepUnitPoint accomplishes the same objective by reducing $P(Z(\layer), x)$ by forcing at least one unit with positive activation per point and by removing dead units whose activation is zero for all the points.
-
-Despite the fact that no information is provided in this article about dynamics of training using the \SepConstraint formulation, preliminary revision show interesting dynamic behavior on behalf of the \SepConstraint family, particularly regarding instabilities that appear during training. In addition, the use of the separation constraints in other types of networks such as \texttt{LSTM} \cite{lstm} or transformers \cite{transformer}\cite{transformer2} is yet to be performed, to explore other tasks like regression, unsupervised learning \cite{embedding}, graphs \cite{graph} or generation \cite{gan,vae}. Alternatively, while the separation constraints prevent the vanishing gradient, the \emph{exploding gradient} remains at large. While the \SepConstraint family places \emph{lower bounds} on the magnitude of the pre-activation values, it does not place upper bounds, for which the possibility opens to define other types of constraints. 
+    P(Z(\layer), \vec{x}) = P(Z(u), )\vec{x})^W
+\end{equation} 
+for this probability decreases with $W$, an assumption that can explain why increasing width allows us to train deeper networks \cite{simpnet, densenet}. 
 \\\\
+As a consequence, the probability of a point dying at some layer is also independent, and equals to the sum of the probabilities within them:
+\begin{equation}
+    P(Z(F), \vec{x}) = \sum_{i=1}^D P(Z(\layer_i), \vec{x})
+\end{equation}
+This would explain why deeper networks fail to train unless width is increased. Alternatively, \SepUnitPoint accomplishes the same objective by reducing $P(Z(\layer), x)$ since it forces at least one unit with positive activation per point and layer, removing dead units whose activation is zero for all the points.
+\\\\
+Despite the fact that no information is provided in this article about dynamics of training using the \SepConstraint formulation, preliminary revision show interesting dynamic behavior on behalf of the \SepConstraint family, particularly regarding instabilities that appear during training. In addition, the use of the separation constraints in other types of networks such as \texttt{LSTM} \cite{lstm} or transformers \cite{transformer}\cite{transformer2} is yet to be performed, to explore other tasks like regression, unsupervised learning \cite{embedding}, graphs \cite{graph} or generation \cite{gan,vae}. Alternatively, while the separation constraints prevent the vanishing gradient, the \emph{exploding gradient} remains at large. While the \SepConstraint family places \emph{lower bounds} on the magnitude of the pre-activation values, it does not place upper bounds, for which the possibility opens to define other types of constraints. 
+
 
 
 
